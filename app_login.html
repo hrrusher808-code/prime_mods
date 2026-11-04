@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>JAAT OP VIP - MOBILE AUTH</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at 50% 15%, #111827 0%, #06080d 75%);
+      color: #f3f4f6;
+      overflow: hidden;
+    }
+    .font-orbitron { font-family: 'Orbitron', sans-serif; }
+    .neon-border {
+      border: 1px solid rgba(0, 242, 254, 0.35);
+      box-shadow: 0 0 25px rgba(0, 242, 254, 0.12), inset 0 0 15px rgba(0, 242, 254, 0.04);
+    }
+    .neon-btn {
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+      transition: all 0.25s ease;
+    }
+    .neon-btn:active {
+      transform: scale(0.97);
+      box-shadow: 0 0 30px rgba(0, 242, 254, 0.8);
+    }
+    .modal-glow {
+      box-shadow: 0 0 45px rgba(16, 185, 129, 0.25), inset 0 0 20px rgba(16, 185, 129, 0.05);
+    }
+    .shake-anim {
+      animation: shake 0.35s ease-in-out;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-3 relative">
+
+  <!-- Background Animated Ambients -->
+  <div class="absolute -top-20 -left-20 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
+  <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none animate-pulse" style="animation-delay: 1.5s;"></div>
+
+  <!-- ========================================================================= -->
+  <!-- MOBILE AUTH CONTAINER (Optimized for APK Floating Webview / Dialog) -->
+  <!-- ========================================================================= -->
+  <div class="w-full max-w-[340px] bg-slate-900/95 backdrop-blur-2xl rounded-2xl neon-border p-5 relative z-10">
+
+    <!-- Top Badge & Header -->
+    <div class="text-center mb-5">
+      <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-950/70 border border-cyan-500/40 text-[9px] font-mono text-cyan-400 font-bold uppercase tracking-wider mb-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+        <span>APK VIP GATEWAY</span>
+      </div>
+      <h1 class="font-orbitron text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400">
+        JAAT OP VIP
+      </h1>
+      <p class="text-[10px] text-slate-400 font-mono tracking-widest uppercase">Cheat Authentication System</p>
+    </div>
+
+    <!-- Key Input Form -->
+    <form id="app-login-form" onsubmit="handleAppLogin(event)" class="space-y-4">
+      
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <label class="text-[10px] uppercase font-bold text-slate-300 font-mono">License Key</label>
+          <button type="button" onclick="pasteKeyFromClipboard()" class="text-[10px] text-cyan-400 hover:underline font-mono">
+            Paste
+          </button>
+        </div>
+
+        <div class="relative">
+          <input type="password" id="app-key-input" required placeholder="Enter key (e.g. JAAT-XXXX)..." autocomplete="off"
+            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 pr-10 text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400 font-mono">
+          <button type="button" onclick="togglePasswordVisibility()" class="absolute right-2.5 top-2.5 text-slate-500 hover:text-cyan-400">
+            <svg id="pass-eye" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Device HWID Preview -->
+      <div class="flex items-center justify-between p-2 rounded-lg bg-slate-950/70 border border-slate-800/80 text-[10px] font-mono text-slate-400">
+        <span>Device HWID:</span>
+        <span id="app-hwid-badge" class="text-purple-400 font-semibold truncate max-w-[150px]">Loading...</span>
+      </div>
+
+      <!-- Error Alert Box -->
+      <div id="app-error-box" class="hidden bg-red-950/80 border border-red-500/50 text-red-400 text-[11px] p-2.5 rounded-xl font-mono flex items-center gap-2">
+        <svg class="w-4 h-4 text-amber-400 shrink-0 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        <span id="app-error-text">Invalid License Key!</span>
+      </div>
+
+      <!-- Remember Key Checkbox -->
+      <div class="flex items-center justify-between text-[11px] text-slate-400">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" id="chk-remember-key" checked class="w-3.5 h-3.5 rounded bg-slate-950 border-slate-700 text-cyan-500 focus:ring-0">
+          <span>Remember Key</span>
+        </label>
+        <span class="text-[10px] text-slate-500 font-mono">v2.5.0</span>
+      </div>
+
+      <!-- Submit / Launch Button -->
+      <button type="submit" id="btn-app-login" class="w-full py-3 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 text-slate-950 font-orbitron font-extrabold text-xs rounded-xl neon-btn flex items-center justify-center gap-2">
+        <span id="btn-login-text">LOGIN &amp; LAUNCH</span>
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+      </button>
+
+    </form>
+
+    <!-- Footer Security Tag -->
+    <div class="mt-4 pt-3 border-t border-slate-800/60 text-center text-[10px] text-slate-500 font-mono">
+      Secured by <span class="text-cyan-400 font-bold">JAAT VIP SHIELD</span>
+    </div>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- SUCCESS RESPONSE POPUP MODAL (APP POPUP TRIGGERED ON KEY VERIFIED) -->
+  <!-- ========================================================================= -->
+  <div id="success-popup" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
+    <div class="w-full max-w-[320px] bg-slate-900 border border-emerald-500/50 rounded-2xl p-5 modal-glow text-center transform scale-95 transition-transform duration-300" id="popup-content">
+      
+      <!-- Animated Check Icon -->
+      <div class="w-14 h-14 mx-auto rounded-2xl bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-emerald-400 text-2xl mb-3 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+        <svg class="w-8 h-8 text-emerald-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+      </div>
+
+      <h2 class="font-orbitron text-lg font-black text-emerald-400 tracking-wide">
+        LOGIN SUCCESS
+      </h2>
+      <p class="text-[11px] text-slate-400 mt-0.5">VIP License Verified &amp; Activated</p>
+
+      <!-- Key Details Card -->
+      <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-3 my-4 text-left text-xs font-mono space-y-2">
+        <div class="flex justify-between items-center text-slate-400 pb-1 border-b border-slate-900">
+          <span>License Plan:</span>
+          <span id="pop-tier" class="text-yellow-400 font-bold">VIP Lifetime</span>
+        </div>
+        <div class="flex justify-between items-center text-slate-400 pb-1 border-b border-slate-900">
+          <span>Sold By / Distributor:</span>
+          <span id="pop-seller" class="text-cyan-400 font-bold">JAAT OP OFFICIAL</span>
+        </div>
+        <div class="flex justify-between items-center text-slate-400 pb-1 border-b border-slate-900">
+          <span>Expires:</span>
+          <span id="pop-expiry" class="text-emerald-400 font-bold">Never</span>
+        </div>
+        <div class="flex justify-between items-center text-slate-400 pb-1 border-b border-slate-900">
+          <span>HWID Lock:</span>
+          <span class="text-purple-400 font-bold flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-ping"></span>
+            Bound
+          </span>
+        </div>
+        <div class="flex justify-between items-center text-slate-400">
+          <span>Status:</span>
+          <span class="text-emerald-400 font-bold">Active VIP</span>
+        </div>
+      </div>
+
+      <!-- Encryption Security Badge -->
+      <div class="bg-purple-950/40 border border-purple-500/30 p-2 rounded-xl text-left mb-3">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] text-purple-300 font-bold uppercase tracking-wider flex items-center gap-1">
+            <svg class="w-3.5 h-3.5 text-cyan-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> AES-256 ENCRYPTED TOKEN
+          </span>
+          <span class="text-[9px] bg-purple-900/60 text-purple-200 px-1.5 py-0.2 rounded font-mono">Sniffer-Proof</span>
+        </div>
+        <p id="pop-token-preview" class="text-[9px] text-purple-400/80 font-mono truncate mt-1">Generating token...</p>
+      </div>
+
+      <!-- Server Announcement (MOTD) from Server Settings -->
+      <div id="pop-motd-container" class="bg-cyan-950/40 border border-cyan-500/30 p-2.5 rounded-xl text-left mb-4">
+        <p class="text-[10px] text-cyan-400 font-bold uppercase tracking-wider mb-0.5">Server Notice</p>
+        <p id="pop-motd-text" class="text-[11px] text-slate-300 font-mono">Welcome to JAAT OP VIP Cheat!</p>
+      </div>
+
+      <!-- Action Button to Launch Mod / Inject -->
+      <button onclick="launchAppMod()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-orbitron font-extrabold text-xs rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all">
+        START CHEAT / LAUNCH
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MOBILE AUTH JAVASCRIPT ENGINE -->
+  <!-- ========================================================================= -->
+  <script>
+    const APP_CONFIG = {
+      workerUrl: "https://jaat-auth.hrrusher808.workers.dev",
+      storageKey: "JAAT_APP_SAVED_KEY"
+    };
+
+    let verifiedSession = null;
+
+    // Detect or generate persistent Device HWID
+    function getHWID() {
+      // 1. If running in Android Webview with native interface:
+      if (window.Android && typeof window.Android.getHWID === 'function') {
+        try { return window.Android.getHWID(); } catch(e){}
+      }
+      // 2. Local fallback persistent HWID
+      let hwid = localStorage.getItem("JAAT_APP_HWID");
+      if (!hwid) {
+        hwid = "HWID-" + Math.random().toString(36).substring(2, 6).toUpperCase() + "-" + Math.random().toString(36).substring(2, 6).toUpperCase();
+        localStorage.setItem("JAAT_APP_HWID", hwid);
+      }
+      return hwid;
+    }
+
+    // Initialize HWID and restore saved key
+    window.addEventListener('DOMContentLoaded', () => {
+      const hwid = getHWID();
+      document.getElementById('app-hwid-badge').innerText = hwid;
+
+      const savedKey = localStorage.getItem(APP_CONFIG.storageKey);
+      if (savedKey) {
+        document.getElementById('app-key-input').value = savedKey;
+      }
+    });
+
+    // Password visibility toggle
+    function togglePasswordVisibility() {
+      const input = document.getElementById('app-key-input');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    // Paste Key from Clipboard
+    async function pasteKeyFromClipboard() {
+      try {
+        if (navigator.clipboard && navigator.clipboard.readText) {
+          const text = await navigator.clipboard.readText();
+          if (text) document.getElementById('app-key-input').value = text.trim();
+        } else {
+          // Android Webview bridge
+          if (window.Android && typeof window.Android.getClipboard === 'function') {
+            document.getElementById('app-key-input').value = window.Android.getClipboard().trim();
+          }
+        }
+      } catch(e) {
+        alert("Please paste key directly into the input box!");
+      }
+    }
+
+    // Handle Login Button Click
+    async function handleAppLogin(e) {
+      if (e) e.preventDefault();
+
+      const keyInput = document.getElementById('app-key-input').value.trim();
+      const errBox = document.getElementById('app-error-box');
+      const errText = document.getElementById('app-error-text');
+      const btn = document.getElementById('btn-app-login');
+      const btnText = document.getElementById('btn-login-text');
+
+      if (!keyInput) return;
+
+      errBox.classList.add('hidden');
+      btn.disabled = true;
+      btnText.innerHTML = '<span class="animate-pulse">VERIFYING WITH SERVER...</span>';
+
+      const hwid = getHWID();
+
+      try {
+        // Send request to Cloudflare Worker /app/login
+        const res = await fetch(`${APP_CONFIG.workerUrl}/app/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ key: keyInput, hwid: hwid })
+        });
+
+        const data = await res.json();
+
+        if (data.status === "SUCCESS") {
+          // Remember key if checkbox checked
+          if (document.getElementById('chk-remember-key').checked) {
+            localStorage.setItem(APP_CONFIG.storageKey, keyInput);
+          } else {
+            localStorage.removeItem(APP_CONFIG.storageKey);
+          }
+
+          verifiedSession = data;
+          showSuccessPopup(data);
+        } else {
+          showError(data.message || "Invalid or Expired License Key!");
+        }
+      } catch (err) {
+        showError("Server unreachable! Check internet connection.");
+      } finally {
+        btn.disabled = false;
+        btnText.innerText = "LOGIN & LAUNCH";
+      }
+    }
+
+    // Display Error Alert
+    function showError(msg) {
+      const errBox = document.getElementById('app-error-box');
+      const errText = document.getElementById('app-error-text');
+      errText.innerText = msg;
+      errBox.classList.remove('hidden');
+
+      const card = document.querySelector('.neon-border');
+      card.classList.remove('shake-anim');
+      void card.offsetWidth;
+      card.classList.add('shake-anim');
+    }
+
+    // Trigger Success Popup Modal
+    function showSuccessPopup(data) {
+      document.getElementById('pop-tier').innerText = data.tier || "VIP Lifetime";
+      document.getElementById('pop-expiry').innerText = data.expires || "Never";
+      document.getElementById('pop-seller').innerText = data.seller || "JAAT OP OFFICIAL";
+
+      if (data.enc_token) {
+        document.getElementById('pop-token-preview').innerText = data.enc_token;
+      } else {
+        document.getElementById('pop-token-preview').innerText = "Encrypted Token Generated";
+      }
+
+      if (data.announcement) {
+        document.getElementById('pop-motd-text').innerText = data.announcement;
+        document.getElementById('pop-motd-container').classList.remove('hidden');
+      } else {
+        document.getElementById('pop-motd-container').classList.add('hidden');
+      }
+
+      const modal = document.getElementById('success-popup');
+      const content = document.getElementById('popup-content');
+
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        content.classList.remove('scale-95');
+        content.classList.add('scale-100');
+      }, 30);
+    }
+
+    // Launch Mod / Trigger Android Native Hook with Encrypted Token
+    function launchAppMod() {
+      const encToken = (verifiedSession && verifiedSession.enc_token) ? verifiedSession.enc_token : "";
+      const key = (verifiedSession && verifiedSession.key) ? verifiedSession.key : "";
+      const tier = (verifiedSession && verifiedSession.tier) ? verifiedSession.tier : "";
+      const expires = (verifiedSession && verifiedSession.expires) ? verifiedSession.expires : "";
+
+      // 1. Preferred Native Android Hook: passes encrypted AES-256 token
+      if (window.Android) {
+        if (typeof window.Android.onLoginSuccessEncrypted === 'function') {
+          window.Android.onLoginSuccessEncrypted(encToken);
+          return;
+        }
+        if (typeof window.Android.onLoginSuccess === 'function') {
+          window.Android.onLoginSuccess(encToken, key, tier, expires);
+          return;
+        }
+      }
+
+      // 2. Alert / Web callback (When testing in PC Browser)
+      alert(`[SUCCESS] VIP ACCESS ACTIVATED!\n\nPlan: ${tier}\nExpires: ${expires}\n\nAES-256 Dynamic Session Token (Sent to APK):\n${encToken}`);
+
+      // Close popup
+      const modal = document.getElementById('success-popup');
+      modal.classList.add('opacity-0');
+      setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+  </script>
+</body>
+</html>
