@@ -171,7 +171,7 @@
       </div>
 
       <!-- Encryption Security Badge -->
-      <div class="bg-purple-950/40 border border-purple-500/30 p-2 rounded-xl text-left mb-3">
+      <div id="pop-token-card" class="hidden bg-purple-950/40 border border-purple-500/30 p-2 rounded-xl text-left mb-3">
         <div class="flex items-center justify-between">
           <span class="text-[10px] text-purple-300 font-bold uppercase tracking-wider flex items-center gap-1">
             <svg class="w-3.5 h-3.5 text-cyan-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> AES-256 ENCRYPTED TOKEN
@@ -329,8 +329,9 @@
         document.getElementById('pop-token-preview').innerText = "Encrypted Token Generated";
       }
 
-      if (data.announcement) {
-        document.getElementById('pop-motd-text').innerText = data.announcement;
+      const buyerNote = (data.notes || data.announcement || "").trim();
+      if (buyerNote && buyerNote !== "JAAT OP VIP System Online") {
+        document.getElementById('pop-motd-text').innerText = buyerNote;
         document.getElementById('pop-motd-container').classList.remove('hidden');
       } else {
         document.getElementById('pop-motd-container').classList.add('hidden');
@@ -369,10 +370,12 @@
       // 2. Alert / Web callback (When testing in PC Browser)
       alert(`[SUCCESS] VIP ACCESS ACTIVATED!\n\nPlan: ${tier}\nExpires: ${expires}\n\nAES-256 Dynamic Session Token (Sent to APK):\n${encToken}`);
 
-      // Close popup
+      // Close popup immediately
       const modal = document.getElementById('success-popup');
-      modal.classList.add('opacity-0');
-      setTimeout(() => modal.classList.add('hidden'), 300);
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.add('opacity-0');
+      }
     }
   </script>
 </body>
