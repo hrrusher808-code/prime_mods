@@ -329,9 +329,11 @@
         document.getElementById('pop-token-preview').innerText = "Encrypted Token Generated";
       }
 
-      const buyerNote = (data.notes || data.announcement || "").trim();
-      if (buyerNote && buyerNote !== "JAAT OP VIP System Online") {
-        document.getElementById('pop-motd-text').innerText = buyerNote;
+      // 1. Show custom buyer note if set for this key
+      // 2. Otherwise fallback to Global In-App Announcement (MOTD) from dashboard
+      const noticeText = (data.notes && data.notes.trim()) ? data.notes.trim() : (data.announcement ? data.announcement.trim() : "");
+      if (noticeText) {
+        document.getElementById('pop-motd-text').innerText = noticeText;
         document.getElementById('pop-motd-container').classList.remove('hidden');
       } else {
         document.getElementById('pop-motd-container').classList.add('hidden');
