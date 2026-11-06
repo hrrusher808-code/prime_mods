@@ -308,6 +308,24 @@
           }
         }
 
+        if (data.status === "MAINTENANCE") {
+          if (window.Android && typeof window.Android.showMaintenanceDialogFromWeb === 'function') {
+            window.Android.showMaintenanceDialogFromWeb(data.message || "Panel under maintenance!");
+            return;
+          }
+          showError(data.message || "Server under maintenance! Please try shortly.");
+          return;
+        }
+
+        if (data.status === "OUTDATED") {
+          if (window.Android && typeof window.Android.showUpdateDialogFromWeb === 'function') {
+            window.Android.showUpdateDialogFromWeb(data.message || "App version outdated!", data.download_link || "");
+            return;
+          }
+          showError(data.message || "App version outdated! Please update to continue.");
+          return;
+        }
+
         if (data.status === "SUCCESS") {
           // Remember key if checkbox checked
           if (document.getElementById('chk-remember-key').checked) {
