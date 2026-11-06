@@ -599,7 +599,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Required App Version</label>
-                <input type="text" id="setting-version-input" value="6.0" placeholder="e.g. 6.0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 font-mono">
+                <input type="text" id="setting-version-input" value="7.0" placeholder="e.g. 6.0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 font-mono">
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Download / Update Link</label>
@@ -613,12 +613,7 @@
               <input type="text" id="setting-outdated-msg" placeholder="App version outdated! Please update to PRIME LEGIT to continue." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 font-mono">
             </div>
 
-            <!-- Encryption Shared Secret -->
-            <div>
-              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">APK Dynamic Encryption Secret (AES-256 Key)</label>
-              <input type="text" id="setting-enc-key" value="JAAT_AES_SECRET_KEY_2026_X9" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-purple-300 font-mono">
-              <p class="text-[10px] text-slate-500 mt-1">This key is used by Cloudflare Worker to sign auth tokens sent to APK.</p>
-            </div>
+
 
             <button type="submit" id="btn-save-settings" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-orbitron font-bold text-xs rounded-xl glow-cyan-btn transition-all">
               SAVE SERVER &amp; CHEAT CONFIGURATION
@@ -728,7 +723,6 @@
         if (document.getElementById('setting-version-input') && s.appVersion) document.getElementById('setting-version-input').value = s.appVersion;
         if (document.getElementById('setting-update-url') && s.updateUrl) document.getElementById('setting-update-url').value = s.updateUrl;
         if (document.getElementById('setting-outdated-msg') && s.outdatedMsg) document.getElementById('setting-outdated-msg').value = s.outdatedMsg;
-        if (document.getElementById('setting-enc-key') && s.encKey) document.getElementById('setting-enc-key').value = s.encKey;
 
         if (document.getElementById('setting-enable-floating') && s.enableFloating !== undefined) document.getElementById('setting-enable-floating').value = s.enableFloating ? 'true' : 'false';
         if (document.getElementById('setting-enable-neck') && s.enableNeck !== undefined) document.getElementById('setting-enable-neck').value = s.enableNeck ? 'true' : 'false';
@@ -1161,7 +1155,6 @@
       const version = document.getElementById('setting-version-input').value.trim();
       const updateUrl = document.getElementById('setting-update-url').value.trim();
       const outdatedMsg = document.getElementById('setting-outdated-msg') ? document.getElementById('setting-outdated-msg').value.trim() : '';
-      const encKey = document.getElementById('setting-enc-key').value.trim();
 
       const enableFloating = document.getElementById('setting-enable-floating') ? document.getElementById('setting-enable-floating').value === 'true' : true;
       const enableNeck = document.getElementById('setting-enable-neck') ? document.getElementById('setting-enable-neck').value === 'true' : true;
@@ -1186,7 +1179,6 @@
               appVersion: version,
               updateUrl: updateUrl,
               outdatedMsg: outdatedMsg,
-              encKey: encKey,
               enableFloating: enableFloating,
               enableNeck: enableNeck,
               enableBody: enableBody,

@@ -109,7 +109,7 @@
           <input type="checkbox" id="chk-remember-key" checked class="w-3.5 h-3.5 rounded bg-slate-950 border-slate-700 text-cyan-500 focus:ring-0">
           <span>Remember Key</span>
         </label>
-        <span class="text-[10px] text-slate-500 font-mono">v2.5.0</span>
+        <span class="text-[10px] text-slate-500 font-mono">v7.0 VIP</span>
       </div>
 
       <!-- Submit / Launch Button -->
@@ -274,14 +274,34 @@
       const hwid = getHWID();
 
       try {
+        let reqPayload = JSON.stringify({ key: keyInput, hwid: hwid });
+        if (window.Android && typeof window.Android.encryptAppPayload === 'function') {
+          const encPayload = window.Android.encryptAppPayload(reqPayload);
+          if (encPayload) {
+            reqPayload = JSON.stringify({ data: encPayload });
+          }
+        }
+
         // Send request to Cloudflare Worker /app/login
         const res = await fetch(`${APP_CONFIG.workerUrl}/app/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ key: keyInput, hwid: hwid })
+          body: reqPayload
         });
 
-        const data = await res.json();
+        let data = await res.json();
+
+        // If server response is encrypted, decrypt via Android native bridge
+        if (data && data.data) {
+          if (window.Android && typeof window.Android.decryptAppPayload === 'function') {
+            const decStr = window.Android.decryptAppPayload(data.data);
+            if (decStr) {
+              try {
+                data = JSON.parse(decStr);
+              } catch (e) {}
+            }
+          }
+        }
 
         if (data.status === "SUCCESS") {
           // Remember key if checkbox checked
