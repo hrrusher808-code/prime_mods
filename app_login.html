@@ -399,15 +399,21 @@
       const key = (verifiedSession && verifiedSession.key) ? verifiedSession.key : "";
       const tier = (verifiedSession && verifiedSession.tier) ? verifiedSession.tier : "";
       const expires = (verifiedSession && verifiedSession.expires) ? verifiedSession.expires : "";
+      const seller = (verifiedSession && verifiedSession.seller) ? verifiedSession.seller : "JAAT OP OFFICIAL";
+      const sessionSalt = (verifiedSession && verifiedSession.session_salt) ? verifiedSession.session_salt : "";
 
-      // 1. Preferred Native Android Hook: passes encrypted AES-256 token
+      // 1. Preferred Native Android Hook: passes encrypted AES-256 token and dynamic session salt
       if (window.Android) {
-        if (typeof window.Android.onLoginSuccessEncrypted === 'function') {
-          window.Android.onLoginSuccessEncrypted(encToken);
+        if (typeof window.Android.onLoginSuccessWithSalt === 'function') {
+          window.Android.onLoginSuccessWithSalt(encToken, key, tier, expires, seller, sessionSalt);
           return;
         }
         if (typeof window.Android.onLoginSuccess === 'function') {
-          window.Android.onLoginSuccess(encToken, key, tier, expires);
+          window.Android.onLoginSuccess(encToken, key, tier, expires, seller);
+          return;
+        }
+        if (typeof window.Android.onLoginSuccessEncrypted === 'function') {
+          window.Android.onLoginSuccessEncrypted(encToken);
           return;
         }
       }
