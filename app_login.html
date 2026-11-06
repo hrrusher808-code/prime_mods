@@ -274,7 +274,12 @@
       const hwid = getHWID();
 
       try {
-        let reqPayload = JSON.stringify({ key: keyInput, hwid: hwid });
+        let appVer = "7.0";
+        if (window.Android && typeof window.Android.getAppVersion === 'function') {
+          try { appVer = window.Android.getAppVersion(); } catch(e){}
+        }
+
+        let reqPayload = JSON.stringify({ key: keyInput, hwid: hwid, version: appVer });
         if (window.Android && typeof window.Android.encryptAppPayload === 'function') {
           const encPayload = window.Android.encryptAppPayload(reqPayload);
           if (encPayload) {
