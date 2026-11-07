@@ -377,15 +377,14 @@
         return;
       }
 
-      // 2. For legacy APKs (< 9.0) without bridge:
-      // Construct explicit Android Intent URI targeting Google Chrome externally
-      try {
-        const cleanTarget = rawUrl.replace(/^https?:\/\//i, '');
-        const intentUri = "intent://" + cleanTarget + "#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=" + encodeURIComponent(rawUrl) + ";end";
-        window.location.href = intentUri;
-      } catch (e) {
-        window.location.href = rawUrl;
+      // 2. If old genuine APK bridge is available, use native Intent dialog to launch external browser
+      if (window.Android && typeof window.Android.showUpdateDialogFromWeb === 'function') {
+        window.Android.showUpdateDialogFromWeb("Update Required! Please download PRIME LEGIT v9.0 to continue.", rawUrl);
+        return;
       }
+
+      // 3. Standard fallback: clean HTTPS URL navigation (never intent:// to prevent net::ERR_UNKNOWN_URL_SCHEME)
+      window.location.href = rawUrl;
     }
 
     function handleMaintAction() {
