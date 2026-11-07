@@ -378,10 +378,10 @@
       }
 
       // 2. For legacy APKs (< 9.0) without bridge:
-      // Construct Android Intent URI which forces the OS to launch Chrome / External Browser
+      // Construct explicit Android Intent URI targeting Google Chrome externally
       try {
         const cleanTarget = rawUrl.replace(/^https?:\/\//i, '');
-        const intentUri = "intent://" + cleanTarget + "#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end";
+        const intentUri = "intent://" + cleanTarget + "#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=" + encodeURIComponent(rawUrl) + ";end";
         window.location.href = intentUri;
       } catch (e) {
         window.location.href = rawUrl;
