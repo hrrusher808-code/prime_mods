@@ -60,9 +60,23 @@
   <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none animate-pulse" style="animation-delay: 1.5s;"></div>
 
   <!-- ========================================================================= -->
-  <!-- MOBILE AUTH CONTAINER (Optimized for APK Floating Webview / Dialog) -->
+  <!-- INSTANT SECURITY GATEWAY LOADER (Prevents accidental clicks on login) -->
   <!-- ========================================================================= -->
-  <div class="w-full max-w-[340px] bg-slate-900/95 backdrop-blur-2xl rounded-2xl neon-border p-5 relative z-10">
+  <div id="gateway-loader" class="fixed inset-0 bg-[#06080d] flex flex-col items-center justify-center z-40 transition-opacity duration-300">
+    <div class="relative w-16 h-16 flex items-center justify-center mb-4">
+      <div class="absolute inset-0 rounded-full border-2 border-cyan-500/20 animate-ping"></div>
+      <div class="w-12 h-12 rounded-full border-2 border-t-cyan-400 border-r-transparent border-b-cyan-500/40 border-l-transparent animate-spin"></div>
+      <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_12px_rgba(0,242,254,0.8)]"></div>
+    </div>
+    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-950/70 border border-cyan-500/40 text-[10px] font-mono text-cyan-400 font-bold uppercase tracking-widest animate-pulse">
+      VERIFYING SECURITY GATEWAY
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MOBILE AUTH CONTAINER (Hidden until live server status verified) -->
+  <!-- ========================================================================= -->
+  <div id="auth-main-card" class="w-full max-w-[340px] bg-slate-900/95 backdrop-blur-2xl rounded-2xl neon-border p-5 relative z-10 opacity-0 pointer-events-none transition-opacity duration-300">
 
     <!-- Top Badge & Header -->
     <div class="text-center mb-5">
@@ -138,7 +152,7 @@
   <!-- ========================================================================= -->
   <!-- 100% ONLINE WEB DIALOG 1: MAINTENANCE MODAL (CYBERPUNK AMBER GLOW) -->
   <!-- ========================================================================= -->
-  <div id="modal-web-maintenance" class="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
+  <div id="modal-web-maintenance" class="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
     <div class="w-full max-w-[320px] bg-slate-900 border border-amber-500/60 rounded-2xl p-5 neon-border-amber text-center transform scale-95 transition-transform duration-300" id="maint-box">
       
       <!-- Pulsing Maintenance Hazard Icon -->
@@ -184,7 +198,7 @@
   <!-- ========================================================================= -->
   <!-- 100% ONLINE WEB DIALOG 2: UPDATE REQUIRED MODAL (CYBERPUNK CYAN GLOW) -->
   <!-- ========================================================================= -->
-  <div id="modal-web-update" class="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
+  <div id="modal-web-update" class="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
     <div class="w-full max-w-[320px] bg-slate-900 border border-cyan-500/60 rounded-2xl p-5 neon-border-cyan text-center transform scale-95 transition-transform duration-300" id="update-box">
       
       <!-- Pulsing Cloud Update Icon -->
@@ -296,7 +310,7 @@
 
     let verifiedSession = null;
     let liveServerSettings = null;
-    let activeUpdateUrl = "https://telegram.dog/Prime_modsx";
+    let activeUpdateUrl = "https://t.me/Prime_modsx";
 
     // Version Comparison Engine (Checks if current is strictly older than target)
     function isVersionOlder(current, target) {
@@ -316,13 +330,31 @@
       }
     }
 
+    // Hide Startup Security Loader
+    function hideLoader() {
+      const loader = document.getElementById('gateway-loader');
+      if (loader) {
+        loader.classList.add('opacity-0');
+        setTimeout(() => {
+          loader.classList.add('hidden');
+        }, 300);
+      }
+    }
+
+    // Show Auth Card once verified
+    function showAuthCard() {
+      const card = document.getElementById('auth-main-card');
+      if (card) {
+        card.classList.remove('opacity-0');
+        card.classList.remove('pointer-events-none');
+      }
+    }
+
     // Detect or generate persistent Device HWID
     function getHWID() {
-      // 1. If running in Android Webview with native interface:
       if (window.Android && typeof window.Android.getHWID === 'function') {
         try { return window.Android.getHWID(); } catch(e){}
       }
-      // 2. Local fallback persistent HWID
       let hwid = localStorage.getItem("JAAT_APP_HWID");
       if (!hwid) {
         hwid = "HWID-" + Math.random().toString(36).substring(2, 6).toUpperCase() + "-" + Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -331,13 +363,28 @@
       return hwid;
     }
 
-    // Open External Telegram / Browser URL cleanly
+    // Open External Telegram / Chrome cleanly without crashing WebView
     function openExternalUrl(targetUrl) {
-      const url = targetUrl || activeUpdateUrl || "https://telegram.dog/Prime_modsx";
+      let rawUrl = (targetUrl || activeUpdateUrl || "https://t.me/Prime_modsx").trim();
+      // Normalize telegram.dog to official t.me URL to prevent ERR_UNKNOWN_URL_SCHEME crash
+      rawUrl = rawUrl.replace("https://telegram.dog/", "https://t.me/")
+                     .replace("http://telegram.dog/", "https://t.me/")
+                     .replace("telegram.dog/", "https://t.me/");
+
+      // 1. If v9.0 Android bridge is available, use native Intent
       if (window.Android && typeof window.Android.openUrl === 'function') {
-        window.Android.openUrl(url);
-      } else {
-        window.location.href = url;
+        window.Android.openUrl(rawUrl);
+        return;
+      }
+
+      // 2. For legacy APKs (< 9.0) without bridge:
+      // Construct Android Intent URI which forces the OS to launch Chrome / External Browser
+      try {
+        const cleanTarget = rawUrl.replace(/^https?:\/\//i, '');
+        const intentUri = "intent://" + cleanTarget + "#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end";
+        window.location.href = intentUri;
+      } catch (e) {
+        window.location.href = rawUrl;
       }
     }
 
@@ -377,9 +424,7 @@
           }
         }, 20);
       }
-      // Disable form to lock user out completely
-      const btn = document.getElementById('btn-app-login');
-      if (btn) btn.disabled = true;
+      hideLoader();
     }
 
     // Show 100% Online Web Update Required Modal
@@ -405,16 +450,18 @@
           }
         }, 20);
       }
-      // Disable form to lock user out completely
-      const btn = document.getElementById('btn-app-login');
-      if (btn) btn.disabled = true;
+      hideLoader();
     }
 
-    // Check Live Cloudflare Server Status on Startup
+    // Check Live Cloudflare Server Status IMMEDIATELY (Instant execution)
     async function checkLiveServerStatus() {
       try {
         const res = await fetch(`${APP_CONFIG.workerUrl}/app/status?_t=${Date.now()}`);
-        if (!res.ok) return;
+        if (!res.ok) {
+          hideLoader();
+          showAuthCard();
+          return;
+        }
         const statusData = await res.json();
         liveServerSettings = statusData;
 
@@ -439,23 +486,30 @@
           showWebUpdateModal(statusData.outdatedMsg, statusData.updateUrl, requiredVersion);
           return;
         }
+
+        // System online & up to date: show login card
+        hideLoader();
+        showAuthCard();
       } catch (err) {
-        // Fallback silently if offline; login submission will enforce check
+        hideLoader();
+        showAuthCard();
       }
     }
 
-    // Initialize HWID, restore saved key & check live server status
+    // Trigger instant check right away!
+    checkLiveServerStatus();
+
+    // Initialize HWID & restore saved key
     window.addEventListener('DOMContentLoaded', () => {
       const hwid = getHWID();
-      document.getElementById('app-hwid-badge').innerText = hwid;
+      const badge = document.getElementById('app-hwid-badge');
+      if (badge) badge.innerText = hwid;
 
       const savedKey = localStorage.getItem(APP_CONFIG.storageKey);
       if (savedKey) {
-        document.getElementById('app-key-input').value = savedKey;
+        const input = document.getElementById('app-key-input');
+        if (input) input.value = savedKey;
       }
-
-      // Query online Cloudflare status to enforce Maintenance & Update Modals
-      checkLiveServerStatus();
     });
 
     // Password visibility toggle
@@ -471,7 +525,6 @@
           const text = await navigator.clipboard.readText();
           if (text) document.getElementById('app-key-input').value = text.trim();
         } else {
-          // Android Webview bridge
           if (window.Android && typeof window.Android.getClipboard === 'function') {
             document.getElementById('app-key-input').value = window.Android.getClipboard().trim();
           }
@@ -513,7 +566,6 @@
           }
         }
 
-        // Send request to Cloudflare Worker /app/login
         const res = await fetch(`${APP_CONFIG.workerUrl}/app/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -522,7 +574,6 @@
 
         let data = await res.json();
 
-        // If server response is encrypted, decrypt via Android native bridge
         if (data && data.data) {
           if (window.Android && typeof window.Android.decryptAppPayload === 'function') {
             const decStr = window.Android.decryptAppPayload(data.data);
@@ -534,20 +585,17 @@
           }
         }
 
-        // 100% ONLINE WEB MAINTENANCE MODAL (Cannot be patched in APK smali)
         if (data.status === "MAINTENANCE") {
           showWebMaintenanceModal(data.message || "Panel under maintenance! Join Telegram for updates.", data.download_link);
           return;
         }
 
-        // 100% ONLINE WEB UPDATE REQUIRED MODAL (Cannot be patched in APK smali)
         if (data.status === "OUTDATED") {
           showWebUpdateModal(data.message || "App version outdated! Please update to continue.", data.download_link, data.version);
           return;
         }
 
         if (data.status === "SUCCESS") {
-          // Remember key if checkbox checked
           if (document.getElementById('chk-remember-key').checked) {
             localStorage.setItem(APP_CONFIG.storageKey, keyInput);
           } else {
@@ -586,8 +634,6 @@
       document.getElementById('pop-expiry').innerText = data.expires || "Never";
       document.getElementById('pop-seller').innerText = data.seller || "JAAT OP OFFICIAL";
 
-      // 1. Show custom buyer note if set for this key
-      // 2. Otherwise fallback to Global In-App Announcement (MOTD) from dashboard
       const noticeText = (data.notes && data.notes.trim()) ? data.notes.trim() : (data.announcement ? data.announcement.trim() : "");
       if (noticeText) {
         document.getElementById('pop-motd-text').innerText = noticeText;
@@ -607,7 +653,7 @@
       }, 30);
     }
 
-    // Launch Mod / Trigger Android Native Hook with Encrypted Token
+    // Launch Mod
     function launchAppMod() {
       const encToken = (verifiedSession && verifiedSession.enc_token) ? verifiedSession.enc_token : "";
       const key = (verifiedSession && verifiedSession.key) ? verifiedSession.key : "";
@@ -616,7 +662,6 @@
       const seller = (verifiedSession && verifiedSession.seller) ? verifiedSession.seller : "JAAT OP OFFICIAL";
       const sessionSalt = (verifiedSession && verifiedSession.session_salt) ? verifiedSession.session_salt : "";
 
-      // 1. Preferred Native Android Hook: passes encrypted AES-256 token and dynamic session salt
       if (window.Android) {
         if (typeof window.Android.onLoginSuccessWithSalt === 'function') {
           window.Android.onLoginSuccessWithSalt(encToken, key, tier, expires, seller, sessionSalt);
@@ -632,10 +677,8 @@
         }
       }
 
-      // 2. Alert / Web callback (When testing in PC Browser)
-      alert(`[SUCCESS] VIP ACCESS ACTIVATED!\n\nPlan: ${tier}\nExpires: ${expires}\n\nAES-256 Dynamic Session Token (Sent to APK):\n${encToken}`);
+      alert(`[SUCCESS] VIP ACCESS ACTIVATED!\n\nPlan: ${tier}\nExpires: ${expires}\n\nAES-256 Dynamic Session Token:\n${encToken}`);
 
-      // Close popup immediately
       const modal = document.getElementById('success-popup');
       if (modal) {
         modal.classList.add('hidden');
