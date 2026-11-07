@@ -233,6 +233,11 @@
           <span>DOWNLOAD UPDATE NOW</span>
         </button>
 
+        <button type="button" onclick="copyUpdateLinkToClipboard()" class="w-full py-2 bg-slate-950 hover:bg-slate-800 text-cyan-400 hover:text-cyan-300 border border-cyan-500/30 font-mono text-[11px] rounded-xl transition-all flex items-center justify-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          <span id="btn-copy-update-text">COPY TELEGRAM LINK</span>
+        </button>
+
         <button onclick="exitAppFromWeb()" class="w-full py-2 bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800 font-mono text-[11px] rounded-xl transition-all">
           EXIT APP
         </button>
@@ -365,26 +370,50 @@
 
     // Open External Telegram / Chrome cleanly without crashing WebView
     function openExternalUrl(targetUrl) {
-      let rawUrl = (targetUrl || activeUpdateUrl || "https://t.me/Prime_modsx").trim();
-      // Normalize telegram.dog to official t.me URL to prevent ERR_UNKNOWN_URL_SCHEME crash
-      rawUrl = rawUrl.replace("https://telegram.dog/", "https://t.me/")
-                     .replace("http://telegram.dog/", "https://t.me/")
-                     .replace("telegram.dog/", "https://t.me/");
+      let rawUrl = (targetUrl || activeUpdateUrl || "").trim();
+      if (!rawUrl) rawUrl = "https://t.me/Prime_modsx";
+      rawUrl = rawUrl.replace(/https?:\/\/(www\.)?telegram\.dog\//i, "https://t.me/");
 
-      // 1. If v9.0 Android bridge is available, use native Intent
+      // 1. If v9.0 Android bridge is available, use native Intent specifically targeting Google Chrome
       if (window.Android && typeof window.Android.openUrl === 'function') {
         window.Android.openUrl(rawUrl);
         return;
       }
 
-      // 2. If old genuine APK bridge is available, use native Intent dialog to launch external browser
-      if (window.Android && typeof window.Android.showUpdateDialogFromWeb === 'function') {
-        window.Android.showUpdateDialogFromWeb("Update Required! Please download PRIME LEGIT v9.0 to continue.", rawUrl);
-        return;
-      }
+      // 2. Pure Web Action: Copy Server Settings URL to clipboard
+      copyUpdateLinkToClipboard();
 
-      // 3. Standard fallback: clean HTTPS URL navigation (never intent:// to prevent net::ERR_UNKNOWN_URL_SCHEME)
-      window.location.href = rawUrl;
+      // 3. For legacy APKs: Attempt Chrome Intent or clean HTTPS navigation
+      try {
+        const cleanHostPath = rawUrl.replace(/^https?:\/\//i, '');
+        const chromeIntent = "intent://" + cleanHostPath + "#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=" + encodeURIComponent(rawUrl) + ";end";
+        window.location.href = chromeIntent;
+      } catch (e) {
+        window.location.href = rawUrl;
+      }
+    }
+
+    function copyUpdateLinkToClipboard() {
+      let rawUrl = (activeUpdateUrl || "").trim();
+      if (!rawUrl) rawUrl = "https://t.me/Prime_modsx";
+      rawUrl = rawUrl.replace(/https?:\/\/(www\.)?telegram\.dog\//i, "https://t.me/");
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(rawUrl);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = rawUrl;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+      } catch(e){}
+      const el = document.getElementById('btn-copy-update-text');
+      if (el) {
+        el.innerText = "COPIED TO CLIPBOARD!";
+        setTimeout(() => { el.innerText = "COPY UPDATE LINK"; }, 2500);
+      }
     }
 
     function handleMaintAction() {
