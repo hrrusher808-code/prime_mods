@@ -392,8 +392,11 @@
 
       // 1. If v9.0 Android bridge is available, use native Intent specifically targeting Google Chrome
       if (window.Android && typeof window.Android.openUrl === 'function') {
-        window.Android.openUrl(rawUrl);
-        return;
+        try {
+          window.Android.openUrl(rawUrl);
+          copyUpdateLinkToClipboard();
+          return;
+        } catch(e){}
       }
 
       // 2. Pure Web Action: Copy EXACT Server Settings URL to clipboard (ZERO replacements)
@@ -467,7 +470,30 @@
     }
 
     // Show 100% Online Web Maintenance Modal
+    let isSecurityLockActive = false;
+
+    // Tamper-Proof Watchdog: Kills app if cracker tries to hide update/maint modal
+    setInterval(() => {
+      if (isSecurityLockActive) {
+        const maintModal = document.getElementById('modal-web-maintenance');
+        const updateModal = document.getElementById('modal-web-update');
+        const authCard = document.getElementById('auth-main-card');
+        
+        const isMaintHidden = !maintModal || maintModal.classList.contains('hidden') || maintModal.style.display === 'none';
+        const isUpdateHidden = !updateModal || updateModal.classList.contains('hidden') || updateModal.style.display === 'none';
+        const isAuthTampered = authCard && (!authCard.classList.contains('pointer-events-none') || !authCard.classList.contains('opacity-0'));
+
+        if ((isMaintHidden && isUpdateHidden) || isAuthTampered) {
+          if (window.Android && typeof window.Android.exitApp === 'function') {
+            window.Android.exitApp();
+          }
+          document.body.innerHTML = '<div style="background:#000;color:#ff3344;padding:40px;text-align:center;font-family:monospace;font-weight:bold;font-size:16px;">SECURITY VIOLATION: TAMPER DETECTED<br><br>SYSTEM TERMINATED</div>';
+        }
+      }
+    }, 400);
+
     function showWebMaintenanceModal(message, downloadLink) {
+      isSecurityLockActive = true;
       if (downloadLink) activeUpdateUrl = downloadLink;
       const msgEl = document.getElementById('web-maint-msg');
       if (msgEl) {
@@ -494,6 +520,7 @@
 
     // Show 100% Online Web Update Required Modal
     function showWebUpdateModal(message, downloadLink, requiredVersion) {
+      isSecurityLockActive = true;
       if (downloadLink) activeUpdateUrl = downloadLink;
       const msgEl = document.getElementById('web-update-msg');
       if (msgEl) {
