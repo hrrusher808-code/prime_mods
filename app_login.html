@@ -462,11 +462,22 @@
 
     // Exit application completely
     function exitAppFromWeb() {
+      // 1. In v9.0 APK: Native Android kill process interface
       if (window.Android && typeof window.Android.exitApp === 'function') {
         window.Android.exitApp();
-      } else {
-        window.close();
+        return;
       }
+
+      // 2. Fallback for older APKs (where exitApp interface does not exist in Java)
+      try {
+        window.close();
+      } catch (e) {}
+
+      // Disable security watchdog from triggering on manual exit
+      isSecurityLockActive = false;
+
+      // Render clean closed state on screen
+      document.body.innerHTML = '<div style="position:fixed;inset:0;background:#06080D;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:monospace;user-select:none;z-index:99999;"><div style="width:56px;height:56px;border-radius:16px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);display:flex;align-items:center;justify-content:center;color:#ef4444;font-size:24px;margin-bottom:16px;">✕</div><h2 style="font-size:15px;font-weight:800;color:#f1f5f9;letter-spacing:1px;text-transform:uppercase;margin:0 0 6px 0;">APPLICATION CLOSED</h2><p style="font-size:11px;color:#64748b;margin:0 0 20px 0;">Please press your phone Back button or swipe up to exit.</p><div style="padding:6px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;font-size:10px;color:#94a3b8;">v9.0 Update Required</div></div>';
     }
 
     // Show 100% Online Web Maintenance Modal
