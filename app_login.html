@@ -337,7 +337,7 @@
       if (window.Android && typeof window.Android.openUrl === 'function') {
         window.Android.openUrl(url);
       } else {
-        window.open(url, '_blank');
+        window.location.href = url;
       }
     }
 
