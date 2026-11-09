@@ -735,11 +735,46 @@
       card.classList.add('shake-anim');
     }
 
+    let popupTimerInterval = null;
+
     // Trigger Success Popup Modal
     function showSuccessPopup(data) {
+      if (popupTimerInterval) clearInterval(popupTimerInterval);
+
       document.getElementById('pop-tier').innerText = data.tier || "VIP Lifetime";
-      document.getElementById('pop-expiry').innerText = data.expires || "Never";
       document.getElementById('pop-seller').innerText = data.seller || "JAAT OP OFFICIAL";
+
+      const expElem = document.getElementById('pop-expiry');
+      if (data.expires_at && data.expires !== "Never" && !data.expires?.includes("Permanent")) {
+        const expTime = new Date(data.expires_at).getTime();
+        function updateTick() {
+          const ms = expTime - Date.now();
+          if (ms <= 0) {
+            expElem.innerText = "Expired";
+            expElem.className = "text-red-400 font-bold";
+            if (popupTimerInterval) clearInterval(popupTimerInterval);
+            return;
+          }
+          const totalSecs = Math.floor(ms / 1000);
+          const h = Math.floor(totalSecs / 3600);
+          const m = Math.floor((totalSecs % 3600) / 60);
+          const s = totalSecs % 60;
+          let timeStr = "";
+          if (h >= 24) {
+            const d = Math.floor(h / 24);
+            timeStr = `${d}d ${h % 24}h ${m}m ${s}s`;
+          } else if (h > 0) {
+            timeStr = `${h}h ${m}m ${s}s`;
+          } else {
+            timeStr = `${m}m ${s}s`;
+          }
+          expElem.innerText = `${timeStr} left`;
+        }
+        updateTick();
+        popupTimerInterval = setInterval(updateTick, 1000);
+      } else {
+        expElem.innerText = data.expires || "Never";
+      }
 
       const noticeText = (data.notes && data.notes.trim()) ? data.notes.trim() : (data.announcement ? data.announcement.trim() : "");
       if (noticeText) {

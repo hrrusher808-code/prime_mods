@@ -263,17 +263,20 @@
               <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> Quick Key Generator</span>
             </h3>
             <p class="text-xs text-slate-400 mb-4">Quickly generate 1 random key with predefined durations.</p>
-            <div class="flex gap-2">
-              <button onclick="quickGenerate('1 Day')" class="flex-1 py-2 bg-slate-900 hover:bg-cyan-950/60 hover:text-cyan-400 border border-slate-800 rounded-lg text-xs font-mono transition-all">
-                + 1 Day
+            <div class="flex flex-wrap gap-2">
+              <button onclick="quickGenerate('2 Hours')" class="flex-1 min-w-[70px] py-2 bg-slate-900 hover:bg-cyan-950/60 hover:text-cyan-400 border border-slate-800 rounded-lg text-xs font-mono transition-all">
+                + 2 Hours
               </button>
-              <button onclick="quickGenerate('7 Days')" class="flex-1 py-2 bg-slate-900 hover:bg-cyan-950/60 hover:text-cyan-400 border border-slate-800 rounded-lg text-xs font-mono transition-all">
+              <button onclick="quickGenerate('1 Day')" class="flex-1 min-w-[70px] py-2 bg-slate-900 hover:bg-cyan-950/60 hover:text-cyan-400 border border-slate-800 rounded-lg text-xs font-mono transition-all">
+                + 1 Day (24h)
+              </button>
+              <button onclick="quickGenerate('7 Days')" class="flex-1 min-w-[70px] py-2 bg-slate-900 hover:bg-cyan-950/60 hover:text-cyan-400 border border-slate-800 rounded-lg text-xs font-mono transition-all">
                 + 7 Days
               </button>
-              <button onclick="quickGenerate('30 Days')" class="flex-1 py-2 bg-slate-900 hover:bg-cyan-950/60 hover:text-cyan-400 border border-slate-800 rounded-lg text-xs font-mono transition-all">
+              <button onclick="quickGenerate('30 Days')" class="flex-1 min-w-[70px] py-2 bg-slate-900 hover:bg-cyan-950/60 hover:text-cyan-400 border border-slate-800 rounded-lg text-xs font-mono transition-all">
                 + 30 Days
               </button>
-              <button onclick="quickGenerate('Lifetime')" class="flex-1 py-2 bg-slate-900 hover:bg-yellow-950/60 hover:text-yellow-400 border border-slate-800 rounded-lg text-xs font-mono transition-all">
+              <button onclick="quickGenerate('Lifetime')" class="flex-1 min-w-[70px] py-2 bg-slate-900 hover:bg-yellow-950/60 hover:text-yellow-400 border border-slate-800 rounded-lg text-xs font-mono transition-all">
                 + Lifetime
               </button>
             </div>
@@ -317,13 +320,18 @@
             <!-- Duration Selection -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Plan Duration</label>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Plan Duration (Countdown Timer)</label>
                 <select id="gen-duration-select" onchange="updateDurationPreview()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-400 font-mono">
-                  <option value="1">1 Day Pass</option>
-                  <option value="3">3 Days Pass</option>
-                  <option value="7" selected>7 Days Pass</option>
-                  <option value="15">15 Days Pass</option>
-                  <option value="30">30 Days Pass</option>
+                  <option value="2h">2 Hours Pass (Trial Key)</option>
+                  <option value="6h">6 Hours Pass</option>
+                  <option value="12h">12 Hours Pass</option>
+                  <option value="1d" selected>1 Day Pass (Exact 24 Hours Countdown)</option>
+                  <option value="2d">2 Days Pass (48 Hours)</option>
+                  <option value="3d">3 Days Pass (72 Hours)</option>
+                  <option value="7d">7 Days Pass (168 Hours)</option>
+                  <option value="15d">15 Days Pass</option>
+                  <option value="30d">30 Days Pass</option>
+                  <option value="60d">60 Days Pass</option>
                   <option value="Lifetime">Unlimited Lifetime Access</option>
                 </select>
               </div>
@@ -864,8 +872,23 @@
       renderResellersTable(resellersList);
     }
 
+    let currentKeysCache = null;
+
+    function formatShortDate(d) {
+      if (!d || isNaN(d.getTime())) return "Unknown";
+      const istDate = new Date(d.getTime() + (5.5 * 3600 * 1000));
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      let hr = istDate.getUTCHours();
+      const ampm = hr >= 12 ? "PM" : "AM";
+      hr = hr % 12;
+      if (hr === 0) hr = 12;
+      const mn = istDate.getUTCMinutes().toString().padStart(2, '0');
+      return `${istDate.getUTCDate()} ${months[istDate.getUTCMonth()]}, ${hr}:${mn} ${ampm}`;
+    }
+
     // Render Keys Table
     function renderKeysTable(keysList) {
+      currentKeysCache = keysList;
       const tbody = document.getElementById('keys-table-rows');
       tbody.innerHTML = '';
 
@@ -878,8 +901,6 @@
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-900/50 transition-colors border-b border-slate-800/40";
 
-        const isExpired = keyData.expires && keyData.expires !== "Never" && new Date(keyData.expires) < new Date();
-        
         // Pure Device Counting (No HWID displayed)
         const devicesList = Array.isArray(keyData.activeDevices) 
           ? keyData.activeDevices 
@@ -906,6 +927,71 @@
           </span>`;
         }
 
+        // Timer & Activation state determination
+        const isLifetime = (keyData.durationHours === null && (!keyData.expires || keyData.expires === "Never" || keyData.tier?.includes("Lifetime")));
+        const isActivated = Boolean(keyData.isActivated || keyData.activatedAt || (keyData.expires && !keyData.expires.includes("Not Activated") && !keyData.expires.includes("Unused") && keyData.expires !== "Never" && count > 0));
+
+        let statusBadge = '';
+        let expiryDisplay = '';
+
+        if (isLifetime) {
+          statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-yellow-950 text-yellow-400 border border-yellow-500/30">LIFETIME</span>`;
+          expiryDisplay = `<span class="text-yellow-400 font-mono text-xs font-semibold">Never (Permanent)</span>`;
+        } else if (!isActivated) {
+          const hours = keyData.durationHours || 24;
+          const durStr = hours >= 24 ? `${Math.round(hours / 24)} Day(s) (${hours}h)` : `${hours} Hours`;
+          statusBadge = `<span class="px-2.5 py-0.5 rounded text-[10px] font-bold bg-amber-950/90 text-amber-300 border border-amber-500/40 inline-flex items-center gap-1.5 shadow-[0_0_8px_rgba(245,158,11,0.2)]">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
+            READY / UNUSED
+          </span>`;
+          expiryDisplay = `
+            <div class="font-mono text-xs text-amber-300 font-bold flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              ${durStr} Timer
+            </div>
+            <p class="text-[10px] text-slate-500 mt-0.5">Starts on first login</p>
+          `;
+        } else {
+          // Key is activated: calculate countdown from expires timestamp
+          const expDate = new Date(keyData.expires);
+          const msLeft = expDate.getTime() - Date.now();
+          const isExpired = (!isNaN(expDate.getTime()) && msLeft <= 0) || keyData.status === "expired";
+
+          if (isExpired) {
+            statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-950 text-red-400 border border-red-500/30">EXPIRED</span>`;
+            expiryDisplay = `
+              <div class="font-mono text-xs text-red-400 font-bold">Countdown Finished</div>
+              <p class="text-[10px] text-slate-500 mt-0.5">Expired: ${formatShortDate(expDate)}</p>
+            `;
+          } else {
+            const totalSecs = Math.floor(msLeft / 1000);
+            const h = Math.floor(totalSecs / 3600);
+            const m = Math.floor((totalSecs % 3600) / 60);
+            const s = totalSecs % 60;
+            let timeStr = "";
+            if (h >= 24) {
+              const d = Math.floor(h / 24);
+              timeStr = `${d}d ${h % 24}h ${m}m`;
+            } else if (h > 0) {
+              timeStr = `${h}h ${m}m ${s}s`;
+            } else {
+              timeStr = `${m}m ${s}s`;
+            }
+
+            statusBadge = `<span class="px-2.5 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-500/40 inline-flex items-center gap-1.5 shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              ACTIVE
+            </span>`;
+            expiryDisplay = `
+              <div class="font-mono text-xs text-emerald-400 font-extrabold flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 text-emerald-400 shrink-0 animate-spin" style="animation-duration: 3s;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                ${timeStr} remaining
+              </div>
+              <p class="text-[10px] text-slate-400 mt-0.5">Exp: ${formatShortDate(expDate)}</p>
+            `;
+          }
+        }
+
         tr.innerHTML = `
           <td class="p-3.5">
             <span class="text-cyan-400 font-bold tracking-wide">${keyName}</span>
@@ -915,16 +1001,14 @@
           <td class="p-3.5 text-slate-300">
             <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-[10px]">${keyData.tier || 'VIP'}</span>
           </td>
-          <td class="p-3.5 ${isExpired ? 'text-red-400 font-bold' : 'text-slate-300'}">
-            ${keyData.expires || 'Never'}
+          <td class="p-3.5">
+            ${expiryDisplay}
           </td>
           <td class="p-3.5">
             ${deviceBadge}
           </td>
           <td class="p-3.5">
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isExpired ? 'bg-red-950 text-red-400' : 'bg-emerald-950 text-emerald-400'}">
-              ${isExpired ? 'EXPIRED' : (keyData.status || 'ACTIVE')}
-            </span>
+            ${statusBadge}
           </td>
           <td class="p-3.5 text-right space-x-1.5 shrink-0">
             <button onclick="actionResetHWID('${keyName}')" class="px-2 py-1 bg-purple-950/60 hover:bg-purple-900 text-purple-300 rounded text-[11px] border border-purple-500/30 transition-all" title="Reset HWID / Device Lock">
@@ -993,6 +1077,15 @@
       document.getElementById('reseller-key-input').value = `RESELLER-${part}`;
     }
 
+    function parseDurationHours(val) {
+      if (!val || val === "Lifetime") return null;
+      if (typeof val === "string" && val.endsWith("h")) return parseFloat(val);
+      if (typeof val === "string" && val.endsWith("d")) return parseFloat(val) * 24;
+      const num = parseFloat(val);
+      if (!isNaN(num)) return num * 24;
+      return 24;
+    }
+
     function updateDurationPreview() {
       const sel = document.getElementById('gen-duration-select').value;
       const preview = document.getElementById('preview-calculated-expiry');
@@ -1000,11 +1093,10 @@
         preview.innerText = "Never (Permanent Access)";
         preview.className = "text-yellow-400 font-bold";
       } else {
-        const days = parseInt(sel);
-        const d = new Date();
-        d.setDate(d.getDate() + days);
-        preview.innerText = `${d.toISOString().split('T')[0]} (${days} days)`;
-        preview.className = "text-emerald-400 font-bold";
+        const hours = parseDurationHours(sel);
+        const text = hours >= 24 ? `${Math.round(hours / 24)} Day(s) (${hours}h)` : `${hours} Hours`;
+        preview.innerHTML = `<span class="text-amber-400 font-bold">Unused (Exact ${text} Countdown)</span> &bull; <span class="text-slate-400 text-[11px]">Timer starts on first device login</span>`;
+        preview.className = "text-emerald-400 font-mono";
       }
     }
 
@@ -1012,9 +1104,26 @@
     async function quickGenerate(durationStr) {
       fillRandomKey();
       const keyName = document.getElementById('gen-key-input').value;
-      let days = durationStr === "Lifetime" ? "Lifetime" : parseInt(durationStr);
+      let durationVal = durationStr;
+      let tier = `VIP ${durationStr}`;
+      if (durationStr === "2h" || durationStr === "2 Hours") {
+        durationVal = "2h";
+        tier = "2-Hour Trial";
+      } else if (durationStr === "1d" || durationStr === "1 Day") {
+        durationVal = "1d";
+        tier = "1-Day Pass (24h)";
+      } else if (durationStr === "7d" || durationStr === "7 Days") {
+        durationVal = "7d";
+        tier = "7-Day Pass";
+      } else if (durationStr === "30d" || durationStr === "30 Days") {
+        durationVal = "30d";
+        tier = "30-Day Pass";
+      } else if (durationStr === "Lifetime") {
+        durationVal = "Lifetime";
+        tier = "VIP Lifetime";
+      }
 
-      await saveNewKey(keyName, `VIP ${durationStr}`, days, "1", "Quick generated key");
+      await saveNewKey(keyName, tier, durationVal, "1", "Quick generated key");
       refreshData();
       switchTab('manage-keys');
     }
@@ -1037,7 +1146,12 @@
       submitBtn.disabled = true;
       submitBtn.innerText = "COMMITTING TO DATABASE...";
 
-      const tier = durationVal === "Lifetime" ? "VIP Lifetime" : `${durationVal}-Day Pass`;
+      let tier = "VIP Lifetime";
+      if (durationVal !== "Lifetime") {
+        const h = parseDurationHours(durationVal);
+        tier = h >= 24 ? `${Math.round(h / 24)}-Day Pass` : `${h}-Hour Pass`;
+      }
+
       await saveNewKey(keyName, tier, durationVal, deviceLimit, notes, seller);
 
       document.getElementById('gen-key-input').value = '';
@@ -1052,12 +1166,8 @@
 
     // Direct API call to Cloudflare Worker to commit to GitHub
     async function saveNewKey(keyName, tier, durationVal, deviceLimit, notes, seller = '') {
-      let expires = "Never";
-      if (durationVal !== "Lifetime") {
-        const d = new Date();
-        d.setDate(d.getDate() + parseInt(durationVal));
-        expires = d.toISOString().split('T')[0];
-      }
+      const durHours = parseDurationHours(durationVal);
+      const isLifetime = (durationVal === "Lifetime");
 
       try {
         const res = await fetch(`${CONFIG.workerUrl}/admin/add`, {
@@ -1067,7 +1177,9 @@
             adminKey: session.key,
             key: keyName,
             tier: tier,
-            expires: expires,
+            durationVal: durationVal,
+            durationHours: durHours,
+            expires: isLifetime ? "Never" : "Not Activated",
             deviceLimit: deviceLimit,
             notes: notes,
             seller: seller || (session.role === 'owner' ? 'JAAT OP OFFICIAL' : session.key)
@@ -1320,6 +1432,18 @@
         btn.classList.remove('border-emerald-500/60', 'bg-emerald-950/40');
       }
     }
+
+    // Live 1-second countdown ticker for active keys in database table
+    setInterval(() => {
+      const activeRows = document.querySelectorAll('#keys-table-rows tr');
+      if (activeRows.length > 0 && currentKeysCache && Array.isArray(currentKeysCache)) {
+        // Only update if manage-keys view is currently visible
+        const manageView = document.getElementById('view-manage-keys');
+        if (manageView && !manageView.classList.contains('hidden')) {
+          renderKeysTable(currentKeysCache);
+        }
+      }
+    }, 1000);
 
     function handleLogout() {
       localStorage.removeItem(CONFIG.storageKey);
