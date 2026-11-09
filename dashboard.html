@@ -652,6 +652,23 @@
                 <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/40">v10.0 LIVE</span>
               </div>
 
+              <!-- Option 0: Chest / Neck Aimbot Offsets JSON -->
+              <div class="bg-slate-950/70 p-4 rounded-xl border border-amber-500/30">
+                <div class="flex items-center justify-between mb-1.5">
+                  <label class="block text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                    Chest / Neck Aimbot Patch Offsets (Live Server Offsets)
+                  </label>
+                  <div>
+                    <button type="button" onclick="formatNeckOffsetsJson()" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-cyan-300 font-mono border border-slate-700 transition-all">
+                      Format JSON
+                    </button>
+                  </div>
+                </div>
+                <p class="text-[10px] text-slate-400 font-mono mb-2">Game ke live chest / neck offsets yahan dikh rahe hain. Naye update aane par yahan se edit karke new offsets daal sakte ho:</p>
+                <textarea id="setting-neck-offsets" rows="5" placeholder='[{"offset":27320,"orry":"...","chest":"...","name":"Spine1_FullBlock"}]' class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-amber-200 placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono"></textarea>
+              </div>
+
               <!-- Option 1: Chams Pink Codes (Supports 1 or multiple codes) -->
               <div>
                 <label class="block text-xs font-semibold text-pink-400 uppercase tracking-wider mb-1">
@@ -755,6 +772,30 @@
       }
     }
 
+    const DEFAULT_NECK_CHEST_OFFSETS = [
+      {"offset": 27320, "hex": "0x06AB8", "orry": "040000000000000032440FF6ED31242D000000004789F95006B8C7610000000001FF7BF7BEF6464D000000005481E58648CCC757000000000B000000626F6E655F5370696E653100000001", "chest": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "name": "Spine1_FullBlock"},
+      {"offset": 30424, "hex": "0x076D8", "orry": "0400000000000000EDD9C60939E0A00F0000000090598D281D29B27500000000EF79C461C4292DAD000000008505E1F547C7D581090000000D000000626F6E655F526967687441726D000000000001", "chest": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "name": "RightArm1_FullBlock"},
+      {"offset": 31680, "hex": "0x07BC0", "orry": "04000000000000002D0E097648CC8A2B00000000E7DFCD23E08606F0000000006117262FD53D795100000000B4D457E550409114000000000C000000626F6E655F4C65667441726D000001", "chest": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "name": "LeftArm1_FullBlock"},
+      {"offset": 37576, "hex": "0x092C8", "orry": "04000000000000005D71AD912FC3CBEA00000000EDA54C8A0FA4D6DC000000008B5E6DB78BC0F21000000000885359238274C0D4090000000B000000626F6E655F5370696E653100000001", "chest": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "name": "Spine1_2_FullBlock"},
+      {"offset": 52112, "hex": "0x0CB90", "orry": "0400000000000000D66159B21F03C86B000000006F2B21E613F061A700000000610340706F44D5C900000000D44C1A54AA1707EE000000000D000000626F6E655F526967687441726D000000000001", "chest": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "name": "RightArm2_FullBlock"},
+      {"offset": 54020, "hex": "0x0D304", "orry": "A8E7713D", "chest": "64DFCA3D", "name": "Float_X1"},
+      {"offset": 54032, "hex": "0x0D310", "orry": "DC5239BD", "chest": "9F48623D", "name": "Float_Y1"},
+      {"offset": 54772, "hex": "0x0D5F4", "orry": "724B723D", "chest": "3111CB3D", "name": "Float_X2"},
+      {"offset": 54784, "hex": "0x0D600", "orry": "180427BD", "chest": "DBF94F3D", "name": "Float_Y2"},
+      {"offset": 58848, "hex": "0x0E5E0", "orry": "04000000000000003217E4CC8954C6EB00000000216D55AB0DC4734A00000000D5CE7DFBA1E9A5DE00000000151CB6B3F6B8E009090000000C000000626F6E655F4C65667441726D000001", "chest": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "name": "LeftArm2_FullBlock"}
+    ];
+
+    function formatNeckOffsetsJson() {
+      const elem = document.getElementById('setting-neck-offsets');
+      try {
+        const parsed = JSON.parse(elem.value.trim());
+        elem.value = JSON.stringify(parsed, null, 2);
+        alert("JSON syntax verified & formatted successfully!");
+      } catch (e) {
+        alert("Invalid JSON format! Please check syntax: " + e.message);
+      }
+    }
+
     // =========================================================================
     // TAB SWITCHER
     // =========================================================================
@@ -798,6 +839,18 @@
         if (document.getElementById('setting-enable-chams-pink') && s.enableChamsPink !== undefined) document.getElementById('setting-enable-chams-pink').value = s.enableChamsPink ? 'true' : 'false';
         if (document.getElementById('setting-enable-chams-3d') && s.enableChams3d !== undefined) document.getElementById('setting-enable-chams-3d').value = s.enableChams3d ? 'true' : 'false';
 
+        if (document.getElementById('setting-neck-offsets')) {
+          let val = s.neckOffsets;
+          if (!val) {
+            val = JSON.stringify(DEFAULT_NECK_CHEST_OFFSETS, null, 2);
+          } else {
+            try {
+              const parsed = typeof val === 'string' ? JSON.parse(val) : val;
+              val = JSON.stringify(parsed, null, 2);
+            } catch(e) {}
+          }
+          document.getElementById('setting-neck-offsets').value = val;
+        }
         if (document.getElementById('setting-chams-pink-rules')) {
           document.getElementById('setting-chams-pink-rules').value = s.chamsPinkRules || (s.chamsPinkSearch && s.chamsPinkReplace ? JSON.stringify([{"search": s.chamsPinkSearch, "replace": s.chamsPinkReplace}], null, 2) : JSON.stringify([{"search":"f00cef0f0b1ba2647be6f2e521768a72","replace":"216a7113b7f1bc74eb2289d47f2a406d"}], null, 2));
         }
@@ -1346,6 +1399,7 @@
       const enableChamsPink = document.getElementById('setting-enable-chams-pink') ? document.getElementById('setting-enable-chams-pink').value === 'true' : true;
       const enableChams3d = document.getElementById('setting-enable-chams-3d') ? document.getElementById('setting-enable-chams-3d').value === 'true' : true;
 
+      const neckOffsets = document.getElementById('setting-neck-offsets') ? document.getElementById('setting-neck-offsets').value.trim() : '';
       const chamsPinkRules = document.getElementById('setting-chams-pink-rules') ? document.getElementById('setting-chams-pink-rules').value.trim() : '';
       const chams3dRules = document.getElementById('setting-chams-3d-rules') ? document.getElementById('setting-chams-3d-rules').value.trim() : '';
       const bodyOffsets = document.getElementById('setting-body-offsets') ? document.getElementById('setting-body-offsets').value.trim() : '';
@@ -1374,6 +1428,7 @@
               enableChams: enableChams,
               enableChamsPink: enableChamsPink,
               enableChams3d: enableChams3d,
+              neckOffsets: neckOffsets,
               chamsPinkRules: chamsPinkRules,
               chams3dRules: chams3dRules,
               bodyOffsets: bodyOffsets
