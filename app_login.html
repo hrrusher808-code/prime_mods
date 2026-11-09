@@ -140,6 +140,12 @@
         <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
       </button>
 
+      <!-- GET KEY (FREE 24H KEY) BUTTON -->
+      <button type="button" onclick="handleGetKeyClick()" id="btn-get-key" class="w-full py-3 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-orbitron font-extrabold text-xs rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.35)] flex items-center justify-center gap-2 transition-all transform active:scale-95 cursor-pointer">
+        <svg class="w-4 h-4 text-slate-950 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+        <span>GET KEY (FREE 24H)</span>
+      </button>
+
     </form>
 
     <!-- Footer Security Tag -->
@@ -639,6 +645,21 @@
       } catch(e) {
         alert("Please paste key directly into the input box!");
       }
+    }
+
+    // Launch Free 24H Key Shortener Link (Chrome / Default Browser)
+    function handleGetKeyClick() {
+      const hwid = getHWID();
+      const targetUrl = `${APP_CONFIG.workerUrl}/start_get_key?hwid=${encodeURIComponent(hwid)}`;
+      if (window.Android && typeof window.Android.openUrl === 'function') {
+        try {
+          window.Android.openUrl(targetUrl);
+          return;
+        } catch(e) {
+          console.error("Android.openUrl error:", e);
+        }
+      }
+      window.open(targetUrl, '_blank');
     }
 
     // Handle Login Button Click
