@@ -650,7 +650,7 @@
                   Chams Pink Code Rules (Search &amp; Replace / Multiple JSON Rules)
                 </label>
                 <p class="text-[10px] text-slate-400 font-mono mb-2">Ek se zyada codes ho tab bhi JSON format me daal sakte ho, ya single search/replace use karo:</p>
-                <textarea id="setting-chams-pink-rules" rows="3" placeholder='Single code: c8a0a7e7d90b9dc4abeb5dbdce044e86 -> 216a7113b7f1bc74eb2289d47f2a406d&#10;Multiple codes: [{"search":"code1","replace":"code1_mod"},{"search":"code2","replace":"code2_mod"}]' class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-pink-200 placeholder-slate-600 focus:outline-none focus:border-pink-500 font-mono"></textarea>
+                <textarea id="setting-chams-pink-rules" rows="3" placeholder='Pehle wala Chams code: f00cef0f0b1ba2647be6f2e521768a72 -> 216a7113b7f1bc74eb2289d47f2a406d&#10;Format: [{"search":"f00cef0f0b1ba2647be6f2e521768a72","replace":"216a7113b7f1bc74eb2289d47f2a406d"}]' class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-pink-200 placeholder-slate-600 focus:outline-none focus:border-pink-500 font-mono"></textarea>
               </div>
 
               <!-- Option 2: Chams 3D Codes (Supports 1 or multiple codes) -->
@@ -659,7 +659,7 @@
                   Chams 3D Code Rules (New 3D Chams Search &amp; Replace / Multiple JSON)
                 </label>
                 <p class="text-[10px] text-slate-400 font-mono mb-2">New 3D Chams ke codes yahan daalein (Single code or array of codes):</p>
-                <textarea id="setting-chams-3d-rules" rows="3" placeholder='[{"search":"3d_search_hex","replace":"3d_replace_hex"}]' class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-indigo-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 font-mono"></textarea>
+                <textarea id="setting-chams-3d-rules" rows="3" placeholder='New 3D Chams (2-bar search/replace):&#10;[{"search":"c8a0a7e7d90b9dc4abeb5dbdce044e86","replace":"216a7113b7f1bc74eb2289d47f2a406d"},{"search":"216a7113b7f1bc74eb2289d47f2a406d","replace":"c8a0a7e7d90b9dc4abeb5dbdce044e86"}]' class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-indigo-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 font-mono"></textarea>
               </div>
 
               <!-- Body Aimbot Offsets JSON -->
@@ -791,10 +791,10 @@
         if (document.getElementById('setting-enable-chams-3d') && s.enableChams3d !== undefined) document.getElementById('setting-enable-chams-3d').value = s.enableChams3d ? 'true' : 'false';
 
         if (document.getElementById('setting-chams-pink-rules')) {
-          document.getElementById('setting-chams-pink-rules').value = s.chamsPinkRules || s.chamsRules || (s.chamsSearch && s.chamsReplace ? JSON.stringify([{"search": s.chamsSearch, "replace": s.chamsReplace}], null, 2) : '');
+          document.getElementById('setting-chams-pink-rules').value = s.chamsPinkRules || (s.chamsPinkSearch && s.chamsPinkReplace ? JSON.stringify([{"search": s.chamsPinkSearch, "replace": s.chamsPinkReplace}], null, 2) : JSON.stringify([{"search":"f00cef0f0b1ba2647be6f2e521768a72","replace":"216a7113b7f1bc74eb2289d47f2a406d"}], null, 2));
         }
-        if (document.getElementById('setting-chams-3d-rules') && s.chams3dRules !== undefined) {
-          document.getElementById('setting-chams-3d-rules').value = s.chams3dRules || '';
+        if (document.getElementById('setting-chams-3d-rules')) {
+          document.getElementById('setting-chams-3d-rules').value = s.chams3dRules || JSON.stringify([{"search":"c8a0a7e7d90b9dc4abeb5dbdce044e86","replace":"216a7113b7f1bc74eb2289d47f2a406d"},{"search":"216a7113b7f1bc74eb2289d47f2a406d","replace":"c8a0a7e7d90b9dc4abeb5dbdce044e86"}], null, 2);
         }
         if (document.getElementById('setting-body-offsets') && s.bodyOffsets !== undefined) {
           document.getElementById('setting-body-offsets').value = s.bodyOffsets || '';
