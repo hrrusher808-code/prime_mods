@@ -574,13 +574,37 @@
                   </select>
                 </div>
 
-                <!-- Chams ESP Switch -->
+                <!-- Chams Master Switch -->
                 <div class="p-3.5 bg-slate-950/80 rounded-xl border border-slate-800 flex items-center justify-between">
                   <div>
-                    <p class="text-xs font-bold text-slate-200">Chams ESP (Color/Glow)</p>
-                    <p class="text-[10px] text-slate-500 font-mono">Byte signature patch</p>
+                    <p class="text-xs font-bold text-slate-200">Chams Master Switch</p>
+                    <p class="text-[10px] text-slate-500 font-mono">Enable/Disable both Chams</p>
                   </div>
                   <select id="setting-enable-chams" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs font-mono text-cyan-300">
+                    <option value="true">ENABLED</option>
+                    <option value="false">DISABLED</option>
+                  </select>
+                </div>
+
+                <!-- Chams Pink Switch -->
+                <div class="p-3.5 bg-slate-950/80 rounded-xl border border-slate-800 flex items-center justify-between">
+                  <div>
+                    <p class="text-xs font-bold text-slate-200">Chams Pink</p>
+                    <p class="text-[10px] text-slate-500 font-mono">Option 1: Pink color chams</p>
+                  </div>
+                  <select id="setting-enable-chams-pink" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs font-mono text-pink-400">
+                    <option value="true">ENABLED</option>
+                    <option value="false">DISABLED</option>
+                  </select>
+                </div>
+
+                <!-- Chams 3D Switch -->
+                <div class="p-3.5 bg-slate-950/80 rounded-xl border border-slate-800 flex items-center justify-between">
+                  <div>
+                    <p class="text-xs font-bold text-slate-200">Chams 3D</p>
+                    <p class="text-[10px] text-slate-500 font-mono">Option 2: 3D player chams</p>
+                  </div>
+                  <select id="setting-enable-chams-3d" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs font-mono text-indigo-400">
                     <option value="true">ENABLED</option>
                     <option value="false">DISABLED</option>
                   </select>
@@ -599,11 +623,11 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Required App Version</label>
-                <input type="text" id="setting-version-input" value="9.0" placeholder="e.g. 6.0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 font-mono">
+                <input type="text" id="setting-version-input" value="10.0" placeholder="e.g. 6.0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 font-mono">
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Download / Update Link</label>
-                <input type="text" id="setting-update-url" placeholder="Enter update download link (https://t.me/...)..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 font-mono">
+                <input type="text" id="setting-update-url" placeholder="Enter update download link (https://telegram.dog/...)..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 font-mono">
               </div>
             </div>
 
@@ -611,6 +635,41 @@
             <div>
               <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Update Required Message (Shown if user has older version)</label>
               <input type="text" id="setting-outdated-msg" placeholder="App version outdated! Please update to PRIME LEGIT to continue." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 font-mono">
+            </div>
+
+            <!-- DYNAMIC ONLINE CHEAT CODE INJECTION ENGINE (No APK Updates Required!) -->
+            <div class="p-4 bg-slate-950/90 rounded-2xl border border-cyan-500/30 space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <span class="text-xs font-bold text-cyan-400 uppercase tracking-widest font-orbitron">● Dynamic Online Code Manager (Zero APK Updates)</span>
+                <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/40">v10.0 LIVE</span>
+              </div>
+
+              <!-- Option 1: Chams Pink Codes (Supports 1 or multiple codes) -->
+              <div>
+                <label class="block text-xs font-semibold text-pink-400 uppercase tracking-wider mb-1">
+                  Chams Pink Code Rules (Search &amp; Replace / Multiple JSON Rules)
+                </label>
+                <p class="text-[10px] text-slate-400 font-mono mb-2">Ek se zyada codes ho tab bhi JSON format me daal sakte ho, ya single search/replace use karo:</p>
+                <textarea id="setting-chams-pink-rules" rows="3" placeholder='Single code: c8a0a7e7d90b9dc4abeb5dbdce044e86 -> 216a7113b7f1bc74eb2289d47f2a406d&#10;Multiple codes: [{"search":"code1","replace":"code1_mod"},{"search":"code2","replace":"code2_mod"}]' class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-pink-200 placeholder-slate-600 focus:outline-none focus:border-pink-500 font-mono"></textarea>
+              </div>
+
+              <!-- Option 2: Chams 3D Codes (Supports 1 or multiple codes) -->
+              <div>
+                <label class="block text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-1">
+                  Chams 3D Code Rules (New 3D Chams Search &amp; Replace / Multiple JSON)
+                </label>
+                <p class="text-[10px] text-slate-400 font-mono mb-2">New 3D Chams ke codes yahan daalein (Single code or array of codes):</p>
+                <textarea id="setting-chams-3d-rules" rows="3" placeholder='[{"search":"3d_search_hex","replace":"3d_replace_hex"}]' class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-indigo-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 font-mono"></textarea>
+              </div>
+
+              <!-- Body Aimbot Offsets JSON -->
+              <div>
+                <label class="block text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-1">
+                  Body Aimbot Patch Offsets (Upcoming Server-Side Offsets)
+                </label>
+                <p class="text-[10px] text-slate-400 font-mono mb-2">Thodi der baad jab body offsets daalna ho, unka JSON yahan paste karein:</p>
+                <textarea id="setting-body-offsets" rows="3" placeholder='[{"offset":27320,"orry":"...","chest":"...","name":"Body_Spine"}]' class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-emerald-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500 font-mono"></textarea>
+              </div>
             </div>
 
 
@@ -728,6 +787,18 @@
         if (document.getElementById('setting-enable-neck') && s.enableNeck !== undefined) document.getElementById('setting-enable-neck').value = s.enableNeck ? 'true' : 'false';
         if (document.getElementById('setting-enable-body') && s.enableBody !== undefined) document.getElementById('setting-enable-body').value = s.enableBody ? 'true' : 'false';
         if (document.getElementById('setting-enable-chams') && s.enableChams !== undefined) document.getElementById('setting-enable-chams').value = s.enableChams ? 'true' : 'false';
+        if (document.getElementById('setting-enable-chams-pink') && s.enableChamsPink !== undefined) document.getElementById('setting-enable-chams-pink').value = s.enableChamsPink ? 'true' : 'false';
+        if (document.getElementById('setting-enable-chams-3d') && s.enableChams3d !== undefined) document.getElementById('setting-enable-chams-3d').value = s.enableChams3d ? 'true' : 'false';
+
+        if (document.getElementById('setting-chams-pink-rules')) {
+          document.getElementById('setting-chams-pink-rules').value = s.chamsPinkRules || s.chamsRules || (s.chamsSearch && s.chamsReplace ? JSON.stringify([{"search": s.chamsSearch, "replace": s.chamsReplace}], null, 2) : '');
+        }
+        if (document.getElementById('setting-chams-3d-rules') && s.chams3dRules !== undefined) {
+          document.getElementById('setting-chams-3d-rules').value = s.chams3dRules || '';
+        }
+        if (document.getElementById('setting-body-offsets') && s.bodyOffsets !== undefined) {
+          document.getElementById('setting-body-offsets').value = s.bodyOffsets || '';
+        }
       }
     }
 
@@ -1160,6 +1231,12 @@
       const enableNeck = document.getElementById('setting-enable-neck') ? document.getElementById('setting-enable-neck').value === 'true' : true;
       const enableBody = document.getElementById('setting-enable-body') ? document.getElementById('setting-enable-body').value === 'true' : true;
       const enableChams = document.getElementById('setting-enable-chams') ? document.getElementById('setting-enable-chams').value === 'true' : true;
+      const enableChamsPink = document.getElementById('setting-enable-chams-pink') ? document.getElementById('setting-enable-chams-pink').value === 'true' : true;
+      const enableChams3d = document.getElementById('setting-enable-chams-3d') ? document.getElementById('setting-enable-chams-3d').value === 'true' : true;
+
+      const chamsPinkRules = document.getElementById('setting-chams-pink-rules') ? document.getElementById('setting-chams-pink-rules').value.trim() : '';
+      const chams3dRules = document.getElementById('setting-chams-3d-rules') ? document.getElementById('setting-chams-3d-rules').value.trim() : '';
+      const bodyOffsets = document.getElementById('setting-body-offsets') ? document.getElementById('setting-body-offsets').value.trim() : '';
 
       const btn = document.getElementById('btn-save-settings');
 
@@ -1182,7 +1259,12 @@
               enableFloating: enableFloating,
               enableNeck: enableNeck,
               enableBody: enableBody,
-              enableChams: enableChams
+              enableChams: enableChams,
+              enableChamsPink: enableChamsPink,
+              enableChams3d: enableChams3d,
+              chamsPinkRules: chamsPinkRules,
+              chams3dRules: chams3dRules,
+              bodyOffsets: bodyOffsets
             }
           })
         });

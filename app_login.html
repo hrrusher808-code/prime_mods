@@ -131,7 +131,7 @@
           <input type="checkbox" id="chk-remember-key" checked class="w-3.5 h-3.5 rounded bg-slate-950 border-slate-700 text-cyan-500 focus:ring-0">
           <span>Remember Key</span>
         </label>
-        <span class="text-[10px] text-slate-500 font-mono">v9.0 VIP</span>
+        <span class="text-[10px] text-slate-500 font-mono">v10.0 VIP</span>
       </div>
 
       <!-- Submit / Launch Button -->
@@ -221,7 +221,7 @@
 
       <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-[9px] font-mono text-cyan-300 font-bold uppercase tracking-wider mb-2">
         <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
-        <span id="web-update-badge">MANDATORY v9.0</span>
+        <span id="web-update-badge">MANDATORY v10.0</span>
       </div>
 
       <h2 class="font-orbitron text-base font-black text-cyan-400 tracking-wide uppercase">
@@ -233,7 +233,7 @@
       <div class="bg-slate-950/90 border border-cyan-500/30 rounded-xl p-3 my-3 text-left">
         <p class="text-[9px] text-cyan-400/80 uppercase font-bold font-mono tracking-wider mb-1">Update Instructions</p>
         <p id="web-update-msg" class="text-xs text-slate-200 font-mono leading-relaxed">
-          App version outdated! Please update to PRIME LEGIT v9.0 to continue.
+          App version outdated! Please update to PRIME LEGIT v10.0 to continue.
         </p>
       </div>
 
@@ -327,7 +327,7 @@
     const APP_CONFIG = {
       workerUrl: "https://jaat-auth.hrrusher808.workers.dev",
       storageKey: "JAAT_APP_SAVED_KEY",
-      clientVersion: "9.0"
+      clientVersion: "10.0"
     };
 
     let verifiedSession = null;
@@ -477,7 +477,7 @@
       isSecurityLockActive = false;
 
       // Render clean closed state on screen
-      document.body.innerHTML = '<div style="position:fixed;inset:0;background:#06080D;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:monospace;user-select:none;z-index:99999;"><div style="width:56px;height:56px;border-radius:16px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);display:flex;align-items:center;justify-content:center;color:#ef4444;font-size:24px;margin-bottom:16px;">✕</div><h2 style="font-size:15px;font-weight:800;color:#f1f5f9;letter-spacing:1px;text-transform:uppercase;margin:0 0 6px 0;">APPLICATION CLOSED</h2><p style="font-size:11px;color:#64748b;margin:0 0 20px 0;">Please press your phone Back button or swipe up to exit.</p><div style="padding:6px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;font-size:10px;color:#94a3b8;">v9.0 Update Required</div></div>';
+      document.body.innerHTML = '<div style="position:fixed;inset:0;background:#06080D;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:monospace;user-select:none;z-index:99999;"><div style="width:56px;height:56px;border-radius:16px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);display:flex;align-items:center;justify-content:center;color:#ef4444;font-size:24px;margin-bottom:16px;">✕</div><h2 style="font-size:15px;font-weight:800;color:#f1f5f9;letter-spacing:1px;text-transform:uppercase;margin:0 0 6px 0;">APPLICATION CLOSED</h2><p style="font-size:11px;color:#64748b;margin:0 0 20px 0;">Please press your phone Back button or swipe up to exit.</p><div style="padding:6px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;font-size:10px;color:#94a3b8;">v10.0 Update Required</div></div>';
     }
 
     // Show 100% Online Web Maintenance Modal
@@ -535,7 +535,7 @@
       if (downloadLink) activeUpdateUrl = downloadLink;
       const msgEl = document.getElementById('web-update-msg');
       if (msgEl) {
-        msgEl.innerText = message || `App version outdated! Please update to PRIME LEGIT v${requiredVersion || '9.0'} to continue.`;
+        msgEl.innerText = message || `App version outdated! Please update to PRIME LEGIT v${requiredVersion || '10.0'} to continue.`;
       }
       const linkDisp = document.getElementById('web-update-link-display');
       if (linkDisp) {
@@ -588,7 +588,7 @@
           try { appVer = window.Android.getAppVersion(); } catch(e){}
         }
 
-        const requiredVersion = statusData.appVersion || "9.0";
+        const requiredVersion = statusData.appVersion || "10.0";
         if (isVersionOlder(appVer, requiredVersion)) {
           showWebUpdateModal(statusData.outdatedMsg, statusData.updateUrl, requiredVersion);
           return;
