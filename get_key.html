@@ -200,18 +200,23 @@
       setTimeout(() => { modal.classList.remove('opacity-0'); }, 10);
     }
 
-    // Start verification flow -> opens shortener (VPLink) or direct claim
+    // Start verification flow -> opens shortener (VPLink)
     function startVerificationFlow() {
       const btn = document.getElementById('btn-start-get-key');
       const btnText = document.getElementById('btn-text');
-      btn.disabled = true;
-      btnText.innerText = "LAUNCHING VERIFICATION...";
 
-      let targetUrl = (liveServerData && liveServerData.getKeyUrl && liveServerData.getKeyUrl.trim())
+      const shortenerUrl = (liveServerData && liveServerData.getKeyUrl && liveServerData.getKeyUrl.trim())
         ? liveServerData.getKeyUrl.trim()
-        : `${CONFIG.workerUrl}/get_free_key`;
+        : "";
 
-      window.location.href = targetUrl;
+      if (!shortenerUrl) {
+        alert("⚠️ SHORTENER NOT CONFIGURED YET!\n\nOwner ne abhi tak Dashboard Server Settings me Shortener Link add nahi kiya hai.\n\nBina shortener ke free key generate nahi hogi. Kripya thoda intezar karein ya Telegram join karein!");
+        return;
+      }
+
+      btn.disabled = true;
+      btnText.innerText = "OPENING SHORTENER...";
+      window.location.href = shortenerUrl;
     }
 
     // Run live check

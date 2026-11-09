@@ -742,9 +742,9 @@
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                 <div>
-                  <label class="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1">Session Token Validity</label>
-                  <input type="text" value="20 Minutes (Dynamic 1-Time Token)" disabled class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-400 font-mono">
-                  <p class="text-[9px] text-slate-500 mt-0.5">Unique cryptographically random token per user. Ample time for 2 shorteners.</p>
+                  <label class="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1">Anti-Bypass Passphrase Secret</label>
+                  <input type="text" id="setting-free-key-secret" oninput="updateEarnlinksPreview()" value="JAAT_FREE_PASS_2026" placeholder="e.g. JAAT_FREE_PASS_2026" class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-400 rounded-xl px-3.5 py-2 text-xs text-emerald-300 font-mono">
+                  <p class="text-[9px] text-slate-500 mt-0.5">Secret pass appended to Earnlinks target URL: <code class="text-emerald-400">?pass=...</code></p>
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1">IP Cooldown Window (Hours)</label>
@@ -755,8 +755,8 @@
 
               <div class="p-3 bg-black/60 rounded-xl border border-slate-800 text-[10px] text-slate-400 space-y-1">
                 <div class="text-slate-300 font-bold">🔗 Earnlinks Final Destination URL (Copy this exact link into Earnlinks):</div>
-                <div class="font-mono text-cyan-400 select-all break-all" id="preview-earnlinks-dest">https://jaat-auth.hrrusher808.workers.dev/get_free_key</div>
-                <div class="text-[9px] text-emerald-400/90">✓ Anti-Bypass Locked: If leakers copy this URL into Telegram, it fails with "No Active Session" because the one-time token is verified directly from the browser!</div>
+                <div class="font-mono text-cyan-400 select-all break-all" id="preview-earnlinks-dest">https://jaat-auth.hrrusher808.workers.dev/get_free_key?pass=JAAT_FREE_PASS_2026</div>
+                <div class="text-[9px] text-emerald-400/90">✓ Anti-Bypass Guard: Anyone opening this link directly without the secret pass or before shortener is configured will be blocked!</div>
               </div>
             </div>
 
@@ -1981,9 +1981,10 @@
 
     // Dynamic Live Preview of Earnlinks Destination URL
     function updateEarnlinksPreview() {
+      const secret = document.getElementById('setting-free-key-secret') ? document.getElementById('setting-free-key-secret').value.trim() : 'JAAT_FREE_PASS_2026';
       const el = document.getElementById('preview-earnlinks-dest');
       if (el) {
-        el.innerText = `${CONFIG.workerUrl}/get_free_key`;
+        el.innerText = `${CONFIG.workerUrl}/get_free_key?pass=${encodeURIComponent(secret)}`;
       }
     }
 
