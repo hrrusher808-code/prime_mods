@@ -1166,6 +1166,7 @@
       }
 
       keysList.forEach(([keyName, keyData]) => {
+        if (keyName === 'free_claims' || keyName === 'free_sessions' || keyName === 'settings' || keyName === 'resellers') return;
         const tr = document.createElement('tr');
         tr.className = "table-cyber-row";
 
@@ -1993,6 +1994,7 @@
       const allEntries = Object.entries(cachedData.keys || {});
 
       const filtered = allEntries.filter(([k, v]) => {
+        if (k === 'free_claims' || k === 'free_sessions' || k === 'settings' || k === 'resellers') return false;
         const matchesQuery = k.toLowerCase().includes(query) || (v.hwid && v.hwid.toLowerCase().includes(query)) || (v.notes && v.notes.toLowerCase().includes(query));
         const matchesTier = tierFilter === 'all' || (v.tier && v.tier.includes(tierFilter));
         return matchesQuery && matchesTier;

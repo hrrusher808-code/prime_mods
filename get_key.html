@@ -200,18 +200,17 @@
       setTimeout(() => { modal.classList.remove('opacity-0'); }, 10);
     }
 
-    // Start verification flow -> calls Worker /start_get_key
+    // Start verification flow -> opens shortener (VPLink) or direct claim
     function startVerificationFlow() {
       const btn = document.getElementById('btn-start-get-key');
       const btnText = document.getElementById('btn-text');
       btn.disabled = true;
-      btnText.innerText = "INITIALIZING SECURE SESSION...";
+      btnText.innerText = "LAUNCHING VERIFICATION...";
 
-      // Extract HWID from URL if passed from app (?hwid=...)
-      const urlParams = new URLSearchParams(window.location.search);
-      const hwid = urlParams.get('hwid') || '';
+      let targetUrl = (liveServerData && liveServerData.getKeyUrl && liveServerData.getKeyUrl.trim())
+        ? liveServerData.getKeyUrl.trim()
+        : `${CONFIG.workerUrl}/get_free_key`;
 
-      const targetUrl = `${CONFIG.workerUrl}/start_get_key?hwid=${encodeURIComponent(hwid)}`;
       window.location.href = targetUrl;
     }
 
