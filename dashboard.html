@@ -724,6 +724,42 @@
               <input type="text" id="setting-outdated-msg" placeholder="App version outdated! Please update to PRIME LEGIT to continue." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 font-mono">
             </div>
 
+            <!-- GET FREE KEY SHORTENER & ANTI-BYPASS SECURITY -->
+            <div class="p-4 bg-emerald-950/20 border border-emerald-500/30 rounded-2xl space-y-3">
+              <div class="flex items-center justify-between border-b border-emerald-500/20 pb-2">
+                <label class="block text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+                  <span>GET FREE KEY (24H) SHORTENER &amp; ANTI-BYPASS SHIELD</span>
+                </label>
+                <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40">ANTI-BOT LOCKED</span>
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1">App "GET KEY" Button Shortener URL (VPLink Link)</label>
+                <input type="text" id="setting-get-key-url" placeholder="Enter shortener URL (e.g. https://vplink.in/xxxx)..." class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-400 rounded-xl px-3.5 py-2 text-xs text-emerald-300 font-mono">
+                <p class="text-[10px] text-slate-400 mt-1">This is the VPLink URL opened in Chrome when users tap <strong class="text-emerald-400">GET KEY (FREE 24H)</strong> in the app.</p>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div>
+                  <label class="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1">Session Token Validity</label>
+                  <input type="text" value="20 Minutes (Dynamic 1-Time Token)" disabled class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-400 font-mono">
+                  <p class="text-[9px] text-slate-500 mt-0.5">Unique cryptographically random token per user. Ample time for 2 shorteners.</p>
+                </div>
+                <div>
+                  <label class="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1">IP Cooldown Window (Hours)</label>
+                  <input type="number" id="setting-free-key-cooldown" value="24" min="1" max="168" class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-400 rounded-xl px-3.5 py-2 text-xs text-emerald-300 font-mono">
+                  <p class="text-[9px] text-slate-500 mt-0.5">Blocks bot key-farming: 1 key per IP per X hours (Default: 24h).</p>
+                </div>
+              </div>
+
+              <div class="p-3 bg-black/60 rounded-xl border border-slate-800 text-[10px] text-slate-400 space-y-1">
+                <div class="text-slate-300 font-bold">🔗 Earnlinks Final Destination URL (Copy this exact link into Earnlinks):</div>
+                <div class="font-mono text-cyan-400 select-all break-all" id="preview-earnlinks-dest">https://jaat-auth.hrrusher808.workers.dev/get_free_key</div>
+                <div class="text-[9px] text-emerald-400/90">✓ Anti-Bypass Locked: If leakers copy this URL into Telegram, it fails with "No Active Session" because the one-time token is verified directly from the browser!</div>
+              </div>
+            </div>
+
             <!-- DYNAMIC ONLINE CHEAT CODE INJECTION ENGINE (No APK Updates Required!) -->
             <div class="p-4 bg-slate-950/90 rounded-2xl border border-cyan-500/30 space-y-4">
               <div class="flex items-center justify-between border-b border-slate-800 pb-2">
@@ -1004,6 +1040,12 @@
         if (document.getElementById('setting-version-input') && s.appVersion) document.getElementById('setting-version-input').value = s.appVersion;
         if (document.getElementById('setting-update-url') && s.updateUrl) document.getElementById('setting-update-url').value = s.updateUrl;
         if (document.getElementById('setting-outdated-msg') && s.outdatedMsg) document.getElementById('setting-outdated-msg').value = s.outdatedMsg;
+        if (document.getElementById('setting-get-key-url') && s.getKeyUrl !== undefined) document.getElementById('setting-get-key-url').value = s.getKeyUrl;
+        if (document.getElementById('setting-free-key-secret') && s.freeKeySecret) {
+          document.getElementById('setting-free-key-secret').value = s.freeKeySecret;
+          updateEarnlinksPreview();
+        }
+        if (document.getElementById('setting-free-key-cooldown') && s.freeKeyCooldownHours !== undefined) document.getElementById('setting-free-key-cooldown').value = s.freeKeyCooldownHours;
 
         if (document.getElementById('setting-enable-floating') && s.enableFloating !== undefined) document.getElementById('setting-enable-floating').value = s.enableFloating ? 'true' : 'false';
         if (document.getElementById('setting-enable-neck') && s.enableNeck !== undefined) document.getElementById('setting-enable-neck').value = s.enableNeck ? 'true' : 'false';
@@ -1875,6 +1917,9 @@
       const version = document.getElementById('setting-version-input').value.trim();
       const updateUrl = document.getElementById('setting-update-url').value.trim();
       const outdatedMsg = document.getElementById('setting-outdated-msg') ? document.getElementById('setting-outdated-msg').value.trim() : '';
+      const getKeyUrl = document.getElementById('setting-get-key-url') ? document.getElementById('setting-get-key-url').value.trim() : '';
+      const freeKeySecret = document.getElementById('setting-free-key-secret') ? document.getElementById('setting-free-key-secret').value.trim() : 'JAAT_FREE_PASS_2026';
+      const freeKeyCooldown = document.getElementById('setting-free-key-cooldown') ? parseInt(document.getElementById('setting-free-key-cooldown').value) || 24 : 24;
 
       const enableFloating = document.getElementById('setting-enable-floating') ? document.getElementById('setting-enable-floating').value === 'true' : true;
       const enableNeck = document.getElementById('setting-enable-neck') ? document.getElementById('setting-enable-neck').value === 'true' : true;
@@ -1905,6 +1950,9 @@
               announcement: motd,
               appVersion: version,
               updateUrl: updateUrl,
+              getKeyUrl: getKeyUrl,
+              freeKeySecret: freeKeySecret,
+              freeKeyCooldownHours: freeKeyCooldown,
               outdatedMsg: outdatedMsg,
               enableFloating: enableFloating,
               enableNeck: enableNeck,
@@ -1927,6 +1975,14 @@
         btn.disabled = false;
         btn.innerText = "SAVE SERVER CONFIGURATION";
         refreshData();
+      }
+    }
+
+    // Dynamic Live Preview of Earnlinks Destination URL
+    function updateEarnlinksPreview() {
+      const el = document.getElementById('preview-earnlinks-dest');
+      if (el) {
+        el.innerText = `${CONFIG.workerUrl}/get_free_key`;
       }
     }
 
