@@ -319,7 +319,7 @@
                 <span class="text-cyan-400 font-orbitron text-sm tracking-wide">+30D</span>
                 <span class="text-[10px] text-slate-400 font-sans">1 Month</span>
               </button>
-              <button onclick="quickGenerate('Lifetime')" class="btn-action-glow py-3 px-2 bg-gradient-to-br from-slate-900 to-slate-950 hover:from-yellow-950 hover:to-amber-950 text-slate-200 hover:text-yellow-300 border border-slate-800 hover:border-yellow-500/50 rounded-xl text-xs font-mono font-bold transition-all flex flex-col items-center justify-center gap-1 shadow-md hover:shadow-[0_0_15px_rgba(234,179,8,0.3)]">
+              <button id="quick-btn-lifetime" onclick="quickGenerate('Lifetime')" class="btn-action-glow py-3 px-2 bg-gradient-to-br from-slate-900 to-slate-950 hover:from-yellow-950 hover:to-amber-950 text-slate-200 hover:text-yellow-300 border border-slate-800 hover:border-yellow-500/50 rounded-xl text-xs font-mono font-bold transition-all flex flex-col items-center justify-center gap-1 shadow-md hover:shadow-[0_0_15px_rgba(234,179,8,0.3)]">
                 <span class="text-yellow-400 font-orbitron text-sm tracking-wide">♾️ LIFE</span>
                 <span class="text-[10px] text-slate-400 font-sans">Permanent</span>
               </button>
@@ -377,7 +377,7 @@
                   <option value="15d">15 Days Pass</option>
                   <option value="30d">30 Days Pass</option>
                   <option value="60d">60 Days Pass</option>
-                  <option value="Lifetime">Unlimited Lifetime Access</option>
+                  <option id="opt-duration-lifetime" value="Lifetime">Unlimited Lifetime Access</option>
                 </select>
               </div>
 
@@ -949,6 +949,14 @@
       applyRoleUI();
       updateDurationPreview();
       refreshData();
+
+      // Active Security Guard: Immediately logout if key is deleted from database
+      window.addEventListener('focus', () => {
+        if (session && session.key) refreshData();
+      });
+      setInterval(() => {
+        if (session && session.key) refreshData();
+      }, 30000);
     });
 
     function applyRoleUI() {
@@ -974,10 +982,21 @@
         if (ownerSection) ownerSection.style.display = 'none';
         if (ownerKeysBulk) ownerKeysBulk.classList.add('hidden'), ownerKeysBulk.classList.remove('flex');
         if (ownerResellersBulk) ownerResellersBulk.classList.add('hidden'), ownerResellersBulk.classList.remove('flex');
+
+        // Resellers cannot create Lifetime keys
+        const quickLifeBtn = document.getElementById('quick-btn-lifetime');
+        if (quickLifeBtn) quickLifeBtn.style.display = 'none';
+        const optLife = document.getElementById('opt-duration-lifetime');
+        if (optLife) optLife.style.display = 'none';
       } else {
         if (ownerSection) ownerSection.style.display = 'block';
         if (ownerKeysBulk) ownerKeysBulk.classList.remove('hidden'), ownerKeysBulk.classList.add('flex');
         if (ownerResellersBulk) ownerResellersBulk.classList.remove('hidden'), ownerResellersBulk.classList.add('flex');
+
+        const quickLifeBtn = document.getElementById('quick-btn-lifetime');
+        if (quickLifeBtn) quickLifeBtn.style.display = 'flex';
+        const optLife = document.getElementById('opt-duration-lifetime');
+        if (optLife) optLife.style.display = 'block';
       }
     }
 
@@ -1092,17 +1111,32 @@
           body: JSON.stringify({ adminKey: session.key })
         });
 
-        if (res.ok) {
-          const data = await res.json();
-          if (data.keys) {
-            cachedData.keys = data.keys;
-          }
-          if (data.resellers) {
-            cachedData.resellers = data.resellers;
-          }
-          if (data.settings) {
-            cachedData.settings = data.settings;
-          }
+        // AUTO-LOGOUT: If key is deleted, expired, or invalid -> Terminate session immediately!
+        if (res.status === 401 || res.status === 403 || !res.ok) {
+          alert("⚠️ SESSION TERMINATED!\n\nYour Admin / Reseller Key has been deleted or revoked from the database. Logging out immediately.");
+          sessionStorage.clear();
+          localStorage.removeItem("jaat_admin_session");
+          window.location.href = "index.html";
+          return;
+        }
+
+        const data = await res.json();
+        if (data.success === false) {
+          alert("⚠️ ACCESS REVOKED!\n\n" + (data.message || "Your access has been revoked."));
+          sessionStorage.clear();
+          localStorage.removeItem("jaat_admin_session");
+          window.location.href = "index.html";
+          return;
+        }
+
+        if (data.keys) {
+          cachedData.keys = data.keys;
+        }
+        if (data.resellers) {
+          cachedData.resellers = data.resellers;
+        }
+        if (data.settings) {
+          cachedData.settings = data.settings;
         }
       } catch (err) {
         console.warn("Could not sync with worker, checking local cache.", err);
@@ -1533,6 +1567,10 @@
 
     // Quick Generate from Overview Tab
     async function quickGenerate(durationStr) {
+      if (!session.isOwner && (durationStr === "Lifetime" || durationStr === "Permanent")) {
+        alert("⚠️ ACCESS RESTRICTED!\n\nResellers are not authorized to generate Lifetime keys. Only Master Owner can create Lifetime keys.");
+        return;
+      }
       fillRandomKey();
       const keyName = document.getElementById('gen-key-input').value;
       let durationVal = durationStr;
@@ -1580,6 +1618,11 @@
       const notes = document.getElementById('gen-notes-input').value.trim();
       const seller = document.getElementById('gen-seller-input') ? document.getElementById('gen-seller-input').value.trim() : '';
       const submitBtn = document.getElementById('btn-submit-key');
+
+      if (!session.isOwner && durationVal === "Lifetime") {
+        alert("⚠️ ACCESS RESTRICTED!\n\nResellers are not authorized to generate Lifetime keys. Only Master Owner can create Lifetime keys.");
+        return;
+      }
 
       if (!keyName) {
         alert("Please enter a key or click 'Randomize'!");
