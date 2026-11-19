@@ -306,7 +306,7 @@
 
             <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#ff007c]/15 border border-[#ff007c]/40 text-[9px] font-mono text-[#ff52af] font-bold uppercase tracking-wider mb-2">
                 <span class="w-1.5 h-1.5 rounded-full bg-[#ff007c] animate-ping"></span>
-                <span id="web-update-badge">MANDATORY v10.0</span>
+                <span id="web-update-badge">MANDATORY v11.0</span>
             </div>
 
             <h2 class="orbitron text-base font-black text-[#ff52af] tracking-wide uppercase">
@@ -317,7 +317,7 @@
             <div class="bg-black/60 border border-[#ff007c]/30 rounded-xl p-3 my-3 text-left">
                 <p class="text-[9px] text-[#ff52af] uppercase font-bold font-mono tracking-wider mb-1">Update Instructions</p>
                 <p id="web-update-msg" class="text-xs text-gray-200 font-mono leading-relaxed">
-                    App version outdated! Please update to PRIME MODS v10.0 to continue.
+                    App version outdated! Please update to PRIME MODS v11.0 to continue.
                 </p>
             </div>
 
@@ -402,7 +402,7 @@
         const APP_CONFIG = {
             workerUrl: "https://jaat-auth.hrrusher808.workers.dev",
             storageKey: "JAAT_APP_SAVED_KEY",
-            clientVersion: "10.0"
+            clientVersion: "11.0"
         };
 
         let verifiedSession = null;
@@ -557,7 +557,7 @@
 
             isSecurityLockActive = false;
 
-            document.body.innerHTML = '<div style="position:fixed;inset:0;background:#0a0a0c;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:monospace;user-select:none;z-index:99999;"><div style="width:56px;height:56px;border-radius:16px;background:rgba(255,0,124,0.15);border:1px solid rgba(255,0,124,0.4);display:flex;align-items:center;justify-content:center;color:#ff007c;font-size:24px;margin-bottom:16px;">✕</div><h2 style="font-size:15px;font-weight:800;color:#f1f5f9;letter-spacing:1px;text-transform:uppercase;margin:0 0 6px 0;">APPLICATION CLOSED</h2><p style="font-size:11px;color:#64748b;margin:0 0 20px 0;">Please press your phone Back button or swipe up to exit.</p><div style="padding:6px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;font-size:10px;color:#94a3b8;">v10.0 Update Required</div></div>';
+            document.body.innerHTML = '<div style="position:fixed;inset:0;background:#0a0a0c;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:monospace;user-select:none;z-index:99999;"><div style="width:56px;height:56px;border-radius:16px;background:rgba(255,0,124,0.15);border:1px solid rgba(255,0,124,0.4);display:flex;align-items:center;justify-content:center;color:#ff007c;font-size:24px;margin-bottom:16px;">✕</div><h2 style="font-size:15px;font-weight:800;color:#f1f5f9;letter-spacing:1px;text-transform:uppercase;margin:0 0 6px 0;">APPLICATION CLOSED</h2><p style="font-size:11px;color:#64748b;margin:0 0 20px 0;">Please press your phone Back button or swipe up to exit.</p><div style="padding:6px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;font-size:10px;color:#94a3b8;">v11.0 Update Required</div></div>';
         }
 
         // Tamper-Proof Watchdog
@@ -613,7 +613,7 @@
             if (downloadLink) activeUpdateUrl = downloadLink;
             const msgEl = document.getElementById('web-update-msg');
             if (msgEl) {
-                msgEl.innerText = message || `App version outdated! Please update to PRIME MODS v${requiredVersion || '10.0'} to continue.`;
+                msgEl.innerText = message || `App version outdated! Please update to PRIME MODS v${requiredVersion || '11.0'} to continue.`;
             }
             const linkDisp = document.getElementById('web-update-link-display');
             if (linkDisp) {
@@ -664,7 +664,7 @@
                     try { appVer = window.Android.getAppVersion(); } catch(e){}
                 }
 
-                const requiredVersion = statusData.appVersion || "10.0";
+                const requiredVersion = statusData.appVersion || "11.0";
                 if (isVersionOlder(appVer, requiredVersion)) {
                     showWebUpdateModal(statusData.outdatedMsg, statusData.updateUrl, requiredVersion);
                     return;
